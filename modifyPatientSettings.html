@@ -1,0 +1,95 @@
+<html>
+    
+    <head>
+        <!--Import Google Icon Font-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />      
+
+
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="styles.css"/>
+        
+        <title>FeelGood AI</title>
+    </head>
+    
+    <body onload="checkAdminSignedIn(), getPatientInfo()">
+        
+        <div class="flex-container">
+            <a onclick="homeRedirect()"><span class="material-symbols-outlined" id="left" style="font-size:40px;">home</span></a>
+            <a href="notifications.html"><span class="material-symbols-outlined" id="left" style="font-size:40px;">notifications</span></a>
+            <a onclick="homeRedirect()" id="mainTitle">FeelGood AI</a>
+            <a onclick="settingsRedirect()"><span class="material-symbols-outlined" id="right" style="font-size:40px;">settings</span></a>
+            <a onclick="signInRedirect()"><span class="material-symbols-outlined" id="right" style="font-size:40px;">logout</span></a>        </div>
+
+
+        <br>
+        
+        <b><center><h3>Modify Patient Settings</h3></center></b>
+        <br>
+
+        <div id="notifFlex" style="height: auto;">
+            <div class="card" id="notifDisplay" style="width: 500px; height: auto; overflow: auto;">
+                <b><p id="nameOfPatient" style="display: inline-block; margin: 10px;">Patient Name:</p></b>
+                <input type="text" id="userName" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;"></input>
+               
+                <br>
+
+                <b><p style="display: inline-block; margin: 10px;">Allowing Viewing Results:</p></b>
+                <button onclick="allowViewing(patientName)" style="display: inline-block; width: 50; background-color: #2acf11; border-radius: 4px; border-color:#2acf11;">Yes</button>
+                <button onclick="disallowViewing(patientName)" style="display: inline-block; margin: 5px; width: 50; background-color: #ea2208; border-radius: 4px; border-color:#ea2208;">No</button>
+                
+                <br>
+
+                <b><p style="display: inline-block; margin: 10px;">Journal Frequency:</p></b>
+                <select onchange="checkCustomInput()" id="journalFrequency" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">
+                    <option value="1"></option>
+                    <option value="2">Custom</option>
+                    <option value="3">Every Day</option>
+                    <option value="4">Every Week</option>
+                    <option value="5">Every Month</option>
+                </select>
+                <input type="text" id="customInputJournal" placeholder="Enter # of days" style="display: none; background-color: #84bee1; text-align: center;"></input>
+
+                <br>
+
+                <b><p style="display: inline-block; margin: 10px;">Priority Level:</p></b>
+                <select id="priorityLevel" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">
+                    <option value="1"></option>
+                    <option value="2">Low</option>
+                    <option value="3">Medium</option>
+                    <option value="4">High</option>
+                </select>
+                <br>
+
+                <button onclick="getAdminPatientSettings()" style="width: 100; background-color: #ea2208; border-radius: 4px; border-color:#ea2208; float: left;">Revert Changes</button>
+                <button onclick="saveAdminPatientSettings()" style="width: 100; background-color: #4583df; border-radius: 4px; border-color:#4583df; float: right;">Save Changes</button>
+            </div>
+        </div>
+
+        <script>
+            function checkCustomInput() {
+                if (document.getElementById("journalFrequency").value == 2) {
+                    document.getElementById("customInputJournal").style.display = "inline-block";
+                } else {
+                    document.getElementById("customInputJournal").style.display = "none";
+                }
+                console.log("showInputField");
+            }
+        </script>
+    
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script>
+        <script src="app.js" type="module"></script>       
+        <script src="global.js" type="module"></script>
+        <script src="script.js"></script>
+        
+    </body>
+
+</html>

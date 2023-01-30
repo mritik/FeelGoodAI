@@ -1,0 +1,128 @@
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f1f1;
+    padding: 30px 10px;
+    margin: -10px;
+    height: 20px;
+  }
+#mainTitle{
+  margin: auto;
+  color: #84bee4;
+  font-size: 45;
+  width: 500px;
+  height: 20px;
+} 
+#patientFlex{
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-flow: row wrap;
+  overflow: hidden;
+  padding: 100px 10px;
+  margin: -10px;
+  height: 300px;
+  width: 100%;
+}
+
+#patientJournalFlex{
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-flow: row wrap;
+  overflow: hidden;
+  padding: 100px 10px;
+  margin: -10px;
+  height: auto;
+  width: 100%;
+}
+
+#notifFlex{
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-flow: row wrap;
+  overflow: hidden;
+  padding: 10px 10px;
+  margin: -10px;
+  height: 300px;
+  width: 100%;
+}
+
+#modifySettingsBtn{
+  margin-top: 50px;
+  margin-right: 2%;
+  float: right;
+}
+  
+  /* Style the header links */
+  .flex-container a {
+    color: #4d88ff;
+    padding: 5px;
+    text-decoration: none;
+    height: 41px;
+    line-height: 15px;
+    border-radius: 2px;
+    text-align: center;
+    align-items: center;
+  }
+  
+  
+  /* Change the background color on mouse-over */
+  .flex-container a:hover {
+    background-color: #ddd;
+    color: black;
+  }
+
+  
+  /* Add media queries for responsiveness - when the screen is 500px wide or less, stack the links on top of each other */
+  @media screen and (max-width: 500px) {
+    .flex-container a {
+        float: none;
+        display: block;
+        text-align: left;
+    }
+    .flex-container-right {
+        float: none;
+    }
+    .flex-container-left {
+        float: none;
+    }
+  }
+  
+h3 {
+    margin: auto;
+    color: black;
+    font-size: 30;
+    padding: 20px;
+}
+
+.card {
+  text-align: center;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 2.0s;
+  width: 20%;
+  border-radius: 5px;
+  margin: 30px;
+  height: 250px;
+  background-color: #84bee1;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+tr{
+  border: 3px solid black;
+  text-align: left;
+  padding: 8px;
+}
