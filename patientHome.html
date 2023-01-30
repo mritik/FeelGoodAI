@@ -36,13 +36,45 @@
                 <h4 style="margin-left: 10px; margin-right: 10px;">Question 3: What are some things you've been worried about?</h4>
                 
                 <span>
-                    <p id="patientJournal1" contenteditable="true" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Enter your response...</p>
+                    <p id="patientJournal2" contenteditable="true" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Enter your response...</p>
                 </span>
                 <!--<span><textarea type="text" placeholder="Enter your response..." id="patientJournal1" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"></textarea></span>-->
                 <br>
                 <br>
                 <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                    <button onclick="updatePatientJournal('patientJournal1')" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+                    <button onclick="updatePatientJournal('patientJournal2')" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+                </div>
+            </div>
+
+            <div class="card" style="height: auto; width: 700px; text-align: left;">
+                <h4 style="margin-left: 10px; margin-top: 10px;"><b>January 24th 2023</b></h4>
+                <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                <span>
+                    <p id="patientJournal1" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">
+                        Dear Journal,
+                        <br><br>
+
+                        Today has been another long and arduous day. I feel like I'm stuck in a rut, constantly overwhelmed by the weight of my responsibilities and the expectations of those around me. My thoughts are consumed by thoughts of the future and the impending deadline for university applications.
+                        
+                        I know that I should be grateful for the opportunities and privileges I have, but instead I just feel like I'm drowning. I have so much potential and so much to offer, but I can't shake the fear that I'm not good enough.
+                        
+                        I have a feeling that the best universities will reject me and I'll be left with nothing. I can already hear the doubts and criticism of my parents, teachers, and peers. What if I'm not smart enough to get into a good university? What if I'm not successful enough?
+                        
+                        I know that these are irrational thoughts, but they're still there, lurking in the back of my mind. I just want to be happy and fulfilled, but it seems like that's too much to ask for.
+                        
+                        Tomorrow is another day, and I will try to push through it. But for now, I'll sign off and try to get some rest.
+                        <br><br>
+
+                        Sincerely,
+                        <br>
+                        A Depressed Grade 12 IB Student
+                    </p>
+                </span>
+                <!--<span><textarea type="text" placeholder="Enter your response..." id="patientJournal1" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"></textarea></span>-->
+                <br>
+                <br>
+                <div id="journalViewButton" style="margin-left: 10px; float: right;">
+                    <button onclick="viewResults('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">View Results</button>
                 </div>
             </div>
         </div>

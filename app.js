@@ -26,6 +26,14 @@ const cipKey = [
     [14, 10, 4],
     [11, 24, 13]
 ];
+//Use the Euclidean Algorithm and multiply by the GCD
+const cipKeyInv = [
+    [34, 115, -72],
+    [-138, -141, 192],
+    [226, 163, -228]
+];
+
+
 const conversion = new Map([
     ["a", 0],["b", 1],["c", 2],["d", 3],["e", 4],["f", 5],["g", 6],["h", 7],
     ["i", 8],["j", 9],["k", 10],["l", 11],["m", 12],["n", 13],["o", 14],["p", 15],
@@ -400,6 +408,8 @@ function getProfilePatient(){
                 document.getElementById("userAge").value = userAge;
                 document.getElementById("userCountry").value = userCtry; 
                 var patientID = encryptPatientID(userID);
+                var decryptedID = decryptPatientID(patientID);
+                console.log(decryptedID);
                 document.getElementById("patientID").innerText = patientID;
                 document.getElementById("userPsychologist").innerText = userPsychologist;
                 console.log("Profile Retrieved");
@@ -544,39 +554,83 @@ function sendUserReset()
 window.sendUserReset = sendUserReset;
 
 function encryptPatientID(ID){
+    var resultArray = [];
     var newID = "";
+    var vectorArray = [];
+    var resultInt = 0;
+    var temp;
+    var tempInt;
     for(var i = 0; i < ID.length; i++)
     {
-        var temp = ID.charAt(i);
-        var tempInt = ID.charCodeAt(i);
-        tempInt = tempInt + 1;
-
+        temp = ID.charAt(i);
+        tempInt = conversion.get(temp);
+        vectorArray.push(tempInt);
+    }
+    console.log(vectorArray);
+    
+    for(var l = 0; l < vectorArray.length; l++){
         for(var j = 0; j < cipKey.length; j++){
             for(var k = 0; k < cipKey[0].length; k++){
-                tempInt = tempInt + tempInt * cipKey[j][k]
+                resultInt = resultInt + vectorArray[l] * cipKey[j][k]
             }
         }
-        tempInt = tempInt % 61;
-        console.log(tempInt);
+        resultArray.push(resultInt);
+    }
+
+    for(var i = 0; i < resultArray.length; i++){
+        resultInt = resultArray[i] % 61;
+        console.log(resultInt);
+
         let charKey = [...conversion.entries()]
-            .filter(({ 1: value }) => value === tempInt)
+            .filter(({ 1: value }) => value === resultInt)
             .map(([key]) => key);        
         console.log(charKey);
         temp = charKey[0];
         newID = newID + temp;
     }
+    
     console.log(ID);
     return newID;
 
-}    
+}  
 window.encryptPatientID = encryptPatientID;
 
 function decryptPatientID(ID){
-    //get the value of the charKey (Each character in the ID)
-    //Reverse the matrix encryption process using the reverse matrix and subtracting
-    //Subtract 1 from the tempInt
-
+    var resultArray = [];
+    var decryptedID = "";
+    var vectorArray = [];
+    var resultInt = 0;
+    var temp;
+    var tempInt;
+    for(var i = 0; i < ID.length; i++)
+    {
+        temp = ID.charAt(i);
+        tempInt = conversion.get(temp);
+        vectorArray.push(tempInt);
+    }
     
+    for(var l = 0; l < vectorArray.length; l++){
+        for(var j = 0; j < cipKeyInv.length; j++){
+            for(var k = 0; k < cipKeyInv[0].length; k++){
+                resultInt = resultInt + vectorArray[l] * cipKeyInv[j][k]
+            }
+        }
+        resultArray.push(resultInt);
+    }
+
+    for(var i = 0; i < resultArray.length; i++){
+        resultInt = resultArray[i] % 61;
+        console.log(resultInt);
+
+        let charKey = [...conversion.entries()]
+            .filter(({ 1: value }) => value === resultInt)
+            .map(([key]) => key);        
+        temp = charKey[0];
+        decryptedID = decryptedID + temp;
+    }
+    
+    console.log(ID);
+    return decryptedID;
     
 }    
 window.decryptPatientID = decryptPatientID;

@@ -12,7 +12,7 @@
         <title>FeelGood AI</title>
     </head>
     
-    <body onload="checkAdminSignedIn()">
+    <body onload="checkAdminSignedIn(), loadPatientJournal()">
         
         <div class="flex-container">
             <a onclick="homeRedirect()"><span class="material-symbols-outlined" id="left" style="font-size:40px;">home</span></a>
@@ -26,6 +26,63 @@
         
         <b><center><h3>Patient's Journal</h3></center></b>
         <br>
+
+        <div id="patientJournalFlex">
+            <div class="card" style="height: auto; width: 700px; text-align: left;">
+                <h4 style="margin-left: 10px; margin-top: 10px;"><b>January 25th 2023</b></h4>
+                <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+                
+                <span>
+                    <p id="patientJournal2" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Load Patient Response...</p>
+                </span>
+                <h4 style="margin-left: 10px; margin-right: 10px;"><b>Embedded Emotions</b></h4>
+                <p id="emotion1">1. </p>
+                <p id="emotion2">2. </p>
+                <p id="emotion3">3. </p>
+                <br>
+                <br>
+                <div id="resultsButton" style="margin-left: 10px; float: right;">
+                    <button onclick="changeResultsViewing('patientJournal2')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
+                </div>
+            </div>
+
+            <div class="card" style="height: auto; width: 700px; text-align: left;">
+                <h4 style="margin-left: 10px; margin-top: 10px;"><b>January 24th 2023</b></h4>
+                <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                
+                <span>
+                    <p id="patientJournal1" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">
+                        Dear Journal,
+                        <br><br>
+
+                        Today has been another long and arduous day. I feel like I'm stuck in a rut, constantly overwhelmed by the weight of my responsibilities and the expectations of those around me. My thoughts are consumed by thoughts of the future and the impending deadline for university applications.
+                        
+                        I know that I should be grateful for the opportunities and privileges I have, but instead I just feel like I'm drowning. I have so much potential and so much to offer, but I can't shake the fear that I'm not good enough.
+                        
+                        I have a feeling that the best universities will reject me and I'll be left with nothing. I can already hear the doubts and criticism of my parents, teachers, and peers. What if I'm not smart enough to get into a good university? What if I'm not successful enough?
+                        
+                        I know that these are irrational thoughts, but they're still there, lurking in the back of my mind. I just want to be happy and fulfilled, but it seems like that's too much to ask for.
+                        
+                        Tomorrow is another day, and I will try to push through it. But for now, I'll sign off and try to get some rest.
+                        <br><br>
+
+                        Sincerely,
+                        <br>
+                        A Depressed Grade 12 IB Student
+                    </p>
+                </span>
+                <h4 style="margin-left: 10px; margin-right: 10px;"><b>Embedded Emotions</b></h4>
+                <p id="emotion1">1. </p>
+                <p id="emotion2">2. </p>
+                <p id="emotion3">3. </p>
+                <br>
+                <br>
+                <div id="resultsButton" style="margin-left: 10px; float: right;">
+                    <button onclick="changeResultsViewing('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
+                </div>
+            </div>
+
+        </div>
     
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

@@ -1,2 +1,3 @@
 sessionStorage.userID;
 sessionStorage.userType;
+
