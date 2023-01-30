@@ -1,104 +1,101 @@
 <html>
-    
-    <head>
-        <!--Import Google Icon Font-->
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />      
 
+<head>
+  <!--Import Google Icon Font-->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />      
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="./styles.css"/>
+  <link rel="stylesheet" href="./home.css">
+  
+  <title>FeelGood AI</title>
+</head>
 
-        <!--Let browser know website is optimized for mobile-->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link rel="stylesheet" href="styles.css"/>
-        
-        <title>FeelGood AI</title>
-    </head>
-    
-    <body onload="checkAdminSignedIn()">
-        
-        <div class="flex-container">
-            <a onclick="homeRedirect()"><span class="material-symbols-outlined" id="left" style="font-size:40px;">home</span></a>
-            <a href="notifications.html"><span class="material-symbols-outlined" id="left" style="font-size:40px;">notifications</span></a>
-            <a onclick="homeRedirect()" id="mainTitle">FeelGood AI</a>
-            <a onclick="settingsRedirect()"><span class="material-symbols-outlined" id="right" style="font-size:40px;">settings</span></a>
-            <a onclick="signInRedirect()"><span class="material-symbols-outlined" id="right" style="font-size:40px;">logout</span></a> 
+<body onload="checkAdminSignedIn()">
+  
+  <div class="flex-container">
+    <a onclick="homeRedirect()"><span class="material-symbols-outlined" id="left" style="font-size:40px;">home</span></a>
+    <a href="notifications.html"><span class="material-symbols-outlined" id="left" style="font-size:40px;">notifications</span></a>
+    <a onclick="homeRedirect()" id="mainTitle">FeelGood AI</a>
+    <a onclick="settingsRedirect()"><span class="material-symbols-outlined" id="right" style="font-size:40px;">settings</span></a>
+    <a onclick="signInRedirect()"><span class="material-symbols-outlined" id="right" style="font-size:40px;">logout</span></a> 
+  </div>  
+  
+
+  <div class="content">
+    <b><center><h3>All Patients</h3></center></b>
+    <br>
+    <div class="toolbar">
+      <div id="patientSearch">
+        <input type="text" id="patientSearchInput" placeholder="Search Patient...">
+        <button onclick="searchPatients()">
+          <i class="bx bx-search"></i>
+        </button>
+      </div>
+      <div>
+        <input type="text" id="addPatientInput" placeholder="Add Patient ID:" style="display: inline-block;">
+        <button onclick="addPatient()" >
+          <i class="bx bx-plus"></i>
+        </button>
+      </div>
+      <div id="filterSelect">
+        <select>
+          <option value="Alphabetical">Alphabetical</option>
+          <option value="lastUpdate">Last Update</option>
+          <option value="priorityLevel">Priority Level</option>
+        </select>
+        <button onclick="filterPatients()">
+          <i class="bx bx-check"></i>
+        </button>
+      </div>
+    </div>  
+    <div id="patientFlex">
+      <div class="card">
+        <div class="cardRow">
+          <h4 onclick="redirectAdminToPatientJournal(patientID1)"><b>Patient 1</b></h4>
+          <a onclick="redirectPatientSettings('patientID')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
         </div>
-
-
-        <br>
-        
-        <b><center><h3>All Patients</h3></center></b>
-        <br>
-        <center>
-            <div style="white-space: nowrap;">
-                <b><p style="display: inline-block; margin: 10px;">Add Patient:</p></b>
-                <input type="text" id="addPatientInput" placeholder="Enter Patient ID..." style="display: inline-block;">
-                <button onclick="addPatient()" style="display: inline-block; width: 50; background-color: #4583df; border-radius: 4px; border-color:#4583df;">Add</button>
-            </div>
-        </center>
-
-        <br>
-
-        <div id="filterSelect" style="float: left; margin: 15px;">
-            <select>
-                <option value="Alphabetical">Alphabetical</option>
-                <option value="lastUpdate">Last Update</option>
-                <option value="priorityLevel">Priority Level</option>
-            </select>
-            <button onclick="filterPatients()" style="display: inline-block; width: 50; background-color: #4583df; border-radius: 4px; border-color:#4583df;">Filter</button>
+        <p id="patientID1">1D00J29</p>
+        <p>Last Update: </p>
+        <p>Priority Level: </p>
+      </div>
+      
+      <div class="card">
+        <div class="cardRow">
+          <h4 onclick="redirectAdminToPatientJournal(patientID2)"><b>Patient 2</b></h4>
+          <a onclick="redirectPatientSettings('patientID')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
         </div>
-
-        <div id="patientSearch" style="float: right; margin: 15px; white-space: nowrap;">
-            <input type="text" id="patientSearchInput" placeholder="Search Patient..." style="height: 36px; display: inline-block;">
-            <button onclick="searchPatients()" style="background-color: #4583df; display: inline-block; height: 35px;"><span class="material-symbols-outlined" style="font-size:20px; margin-top: -14px;height: 15px;">search</span></button>
+        <p id="patientID2">1D00J30</p>
+        <p>Last Update: </p>
+        <p>Priority Level: </p>
+      </div>
+      
+      <div class="card">
+        <div class="cardRow">
+          <h4 onclick="redirectAdminToPatientJournal(patientID3)"><b>Patient 3</b></h4>
+          <a onclick="redirectPatientSettings('patientID')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
         </div>
-        
-        <br>
-        <br>
-
-        <div id="patientFlex">
-            <div class="card">
-                <h4 onclick="redirectAdminToPatientJournal(patientID1)"><b>Patient 1</b></h4>
-                <p id="patientID1">1D00J29</p>
-                <p>Last Update: </p>
-                <p>Priority Level: </p>
-                <div id="modifySettingsBtn">
-                    <a onclick="redirectPatientSettings('patientID')"><span class="material-symbols-outlined" id="right" style="font: size 25px; color: black;">settings</span></a>
-                </div>
-            </div>
-
-            <div class="card">
-                <h4 onclick="redirectAdminToPatientJournal(patientID2)"><b>Patient 2</b></h4>
-                <p id="patientID2">1D00J30</p>
-                <p>Last Update: </p>
-                <p>Priority Level: </p>
-                <div id="modifySettingsBtn">
-                    <a onclick="redirectPatientSettings('patientID')"><span class="material-symbols-outlined" id="right" style="font: size 25px; color: black;">settings</span></a>
-                </div>
-            </div>
-
-            <div class="card">
-                <h4 onclick="redirectAdminToPatientJournal(patientID3)"><b>Patient 3</b></h4>
-                <p id="patientID3">1D00J31</p>
-                <p>Last Update: </p>
-                <p>Priority Level: </p>
-                <div id="modifySettingsBtn">
-                    <a onclick="redirectPatientSettings('patientID')"><span class="material-symbols-outlined" id="right" style="font: size 25px; color: black;">settings</span></a>
-                </div>
-            </div>
-        </div>
-    
-
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-        <script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-auth.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script>
-        <script src="app.js" type="module"></script>       
-        <script src="global.js" type="module"></script>
-        <script src="script.js"></script>
-        
-    </body>
+        <p id="patientID3">1D00J31</p>
+        <p>Last Update: </p>
+        <p>Priority Level: </p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script>
+  <script src="app.js" type="module"></script>       
+  <script src="global.js" type="module"></script>
+  <script src="script.js"></script>
+  
+</body>
 
 </html>
