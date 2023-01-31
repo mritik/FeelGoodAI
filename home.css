@@ -9,7 +9,7 @@ input, select {
   padding: 12px;
   border-radius: 6px;
   border-color: #4583df;
-  transition: all 0.3s;
+  transition: all 1.0s;
   outline: none;
 }
 
@@ -18,7 +18,7 @@ button {
   padding: 14px;
   color: white;
   background-color: #4583df;
-  transition: all 0.3s;
+  transition: all 1.0s;
   border-radius: 6px;
 }
 
@@ -38,7 +38,7 @@ button span {
 .card {
   all: unset;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.15);
-  transition: all 0.3s;
+  transition: all 2.0s;
   margin: 32px;
   border-radius: 10px;
   padding: 16px 24px;
@@ -62,7 +62,7 @@ button span {
   font-size: 16px;
   top: 16px; right: 24px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 1.0s;
 }
 
 .card .modifySettingsBtn:hover {
