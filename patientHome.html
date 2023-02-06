@@ -42,7 +42,7 @@
                 <br>
                 <br>
                 <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                    <button onclick="updatePatientJournal('patientJournal2')" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+                    <button onclick="updatePatientJournal('patientJournal2', patientID)" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
                 </div>
             </div>
 
@@ -99,6 +99,10 @@
         <script src="app.js" type="module"></script>       
         <script src="global.js" type="module"></script>
         <script src="script.js"></script>
+
+        <script>
+            var patientID = sessionStorage.userID;
+        </script>
         
     </body>
 

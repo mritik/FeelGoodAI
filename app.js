@@ -15,6 +15,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 import { getDatabase, ref, set, child, get, push, update } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, setPersistence, signInWithEmailAndPassword, browserSessionPersistence, onAuthStateChanged, signOut, sendEmailVerification, updateEmail, sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
+
 const db = getDatabase();
     
 //Logs whether the user is signed in or not
@@ -22,16 +23,25 @@ const auth = getAuth();
 var myRef = ref(db, 'Users');
 var getUserType;
 const cipKey = [
-    [1, 17, 14],
+    [2, 17, 14],
     [14, 10, 4],
     [11, 24, 13]
 ];
 //Use the Euclidean Algorithm and multiply by the GCD
+/* Real Inverse Key uses mod 61
 const cipKeyInv = [
     [34, 115, -72],
-    [-138, -141, 192],
-    [226, 163, -228]
+    [-138, -128, 188],
+    [226, 139, -218]
 ];
+*/
+
+const cipKeyInv = [
+    [38, 30, 22],
+    [31, 54, 17],
+    [24, 45, 48]
+];
+
 
 
 const conversion = new Map([
@@ -42,7 +52,8 @@ const conversion = new Map([
     ["G", 32],["H", 33],["I", 34],["J", 35],["K", 36],["L", 37],["M", 38],["N", 39],
     ["O", 40],["P", 41],["Q", 42],["R", 43],["S", 44],["T", 45],["U", 46],["V", 47],
     ["W", 48],["X", 49],["Y", 50],["Z", 51],["0", 52],["1", 53],["2", 54],["3", 55],
-    ["4", 56],["5", 57],["6", 58],["7", 59],["8", 60],["9", 61],
+    ["4", 56],["5", 57],["6", 58],["7", 59],["8", 60],["9", 61],[".", 62],["/", 63],
+    ["<", 64],[">", 65],["?", 66]
   ]);
 
 
@@ -553,43 +564,52 @@ function sendUserReset()
 }
 window.sendUserReset = sendUserReset;
 
+//First try passing a string, encrypting and decrypting it
+//Save the mod result 
 function encryptPatientID(ID){
+    console.log(ID);
+    //Split userID into groups of 3, and last group would have 1 character
+    //Put groups into an array
+    //Loop array from first to second last group
+    //Encrypt each group using the key
     var resultArray = [];
     var newID = "";
-    var vectorArray = [];
-    var resultInt = 0;
+    var charIntArray = [];
     var temp;
+    var resultInt = 0;
     var tempInt;
     for(var i = 0; i < ID.length; i++)
     {
         temp = ID.charAt(i);
         tempInt = conversion.get(temp);
-        vectorArray.push(tempInt);
+        charIntArray.push(tempInt);
     }
-    console.log(vectorArray);
-    
-    for(var l = 0; l < vectorArray.length; l++){
+    console.log(charIntArray);
+
+    for(var i = 0; i < charIntArray.length - 1; i = i + 3){
+        let vectorArray = [charIntArray[i], charIntArray[i+1], charIntArray[i+2]];
+        
         for(var j = 0; j < cipKey.length; j++){
             for(var k = 0; k < cipKey[0].length; k++){
-                resultInt = resultInt + vectorArray[l] * cipKey[j][k]
+                resultInt = resultInt + vectorArray[k] * cipKey[j][k];
             }
+            resultArray.push(resultInt);
+            resultInt = 0;
         }
-        resultArray.push(resultInt);
     }
-
+    resultArray.push(charIntArray[charIntArray.length - 1]);    
+    console.log(resultArray);
+    
+   
     for(var i = 0; i < resultArray.length; i++){
-        resultInt = resultArray[i] % 61;
-        console.log(resultInt);
-
+        resultInt = resultArray[i] % 67;
         let charKey = [...conversion.entries()]
             .filter(({ 1: value }) => value === resultInt)
             .map(([key]) => key);        
-        console.log(charKey);
         temp = charKey[0];
         newID = newID + temp;
     }
-    
-    console.log(ID);
+    console.log(newID);
     return newID;
 
 }  
@@ -599,6 +619,7 @@ function decryptPatientID(ID){
     var resultArray = [];
     var decryptedID = "";
     var vectorArray = [];
+    var charIntArray = [];
     var resultInt = 0;
     var temp;
     var tempInt;
@@ -606,31 +627,86 @@ function decryptPatientID(ID){
     {
         temp = ID.charAt(i);
         tempInt = conversion.get(temp);
-        vectorArray.push(tempInt);
+        charIntArray.push(tempInt);
     }
     
-    for(var l = 0; l < vectorArray.length; l++){
+    for(var i = 0; i < charIntArray.length - 1; i = i + 3){
+        let vectorArray = [charIntArray[i], charIntArray[i+1], charIntArray[i+2]];
+        
         for(var j = 0; j < cipKeyInv.length; j++){
             for(var k = 0; k < cipKeyInv[0].length; k++){
-                resultInt = resultInt + vectorArray[l] * cipKeyInv[j][k]
+                resultInt = resultInt + vectorArray[k] * cipKeyInv[j][k];
             }
+            resultArray.push(resultInt);
+            resultInt = 0;
         }
-        resultArray.push(resultInt);
     }
-
+    resultArray.push(charIntArray[charIntArray.length - 1]);    
+    console.log(resultArray);
+    
+   
     for(var i = 0; i < resultArray.length; i++){
-        resultInt = resultArray[i] % 61;
-        console.log(resultInt);
-
+        resultInt = resultArray[i] % 67;
         let charKey = [...conversion.entries()]
             .filter(({ 1: value }) => value === resultInt)
             .map(([key]) => key);        
         temp = charKey[0];
         decryptedID = decryptedID + temp;
     }
-    
-    console.log(ID);
+    console.log(decryptedID);
     return decryptedID;
     
 }    
 window.decryptPatientID = decryptPatientID;
+
+function updatePatientJournal(divElement, patientID){
+    let journal = document.getElementById(divElement).innerHTML;
+    console.log(journal);
+    //var patientID = decryptPatientID(patientID);
+    //var patientRef = ref(myRef, "Patients/" + patientID + "/journal");
+    //set(patientRef, journal);
+    getModelAnalysis(journal);
+}
+window.updatePatientJournal = updatePatientJournal;
+
+function getModelAnalysis(journal){
+    query({"inputs": `${journal}`}).then((response) => {
+        const lines = response[0];
+
+        const firstLabel = lines[0].label;
+        const firstScore = lines[0].score;
+
+        const secondLabel = lines[1].label;
+        const secondScore = lines[1].score;
+
+        const thirdLabel = lines[2].label;
+        const thirdScore = lines[2].score;
+        
+        console.log(firstLabel);
+        console.log(firstScore);
+
+        console.log(secondLabel);
+        console.log(secondScore);
+
+        console.log(thirdLabel);
+        console.log(thirdScore);
+
+    });
+}
+window.getModelAnalysis = getModelAnalysis;
+
+async function query(data) {
+    const response = await fetch(
+        "https://api-inference.huggingface.co/models/j-hartmann/emotion-english-distilroberta-base",
+        {
+            headers: { Authorization: "Bearer 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" },
+            method: "POST",
+            body: JSON.stringify(data),
+        }
+    );
+    const result = await response.json();
+    return result;
+}
+
+
+
