@@ -602,7 +602,7 @@ function encryptPatientID(ID){
     
    
     for(var i = 0; i < resultArray.length; i++){
-        resultInt = resultArray[i] % 67;
+        resultInt = (resultArray[i] + 1) % 67; //add 1 to result and mod 67 just to make it a little more difficult to crack
         let charKey = [...conversion.entries()]
             .filter(({ 1: value }) => value === resultInt)
             .map(([key]) => key);        
@@ -626,7 +626,7 @@ function decryptPatientID(ID){
     for(var i = 0; i < ID.length; i++)
     {
         temp = ID.charAt(i);
-        tempInt = conversion.get(temp);
+        tempInt = conversion.get(temp) - 1; //subtracting 1 because we added 1 at the end of the encryption
         charIntArray.push(tempInt);
     }
     
