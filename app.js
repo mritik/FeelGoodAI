@@ -52,8 +52,8 @@ const conversion = new Map([
     ["G", 32],["H", 33],["I", 34],["J", 35],["K", 36],["L", 37],["M", 38],["N", 39],
     ["O", 40],["P", 41],["Q", 42],["R", 43],["S", 44],["T", 45],["U", 46],["V", 47],
     ["W", 48],["X", 49],["Y", 50],["Z", 51],["0", 52],["1", 53],["2", 54],["3", 55],
-    ["4", 56],["5", 57],["6", 58],["7", 59],["8", 60],["9", 61],[".", 62],["/", 63],
-    ["<", 64],[">", 65],["?", 66]
+    ["4", 56],["5", 57],["6", 58],["7", 59],["8", 60],["9", 61],["<", 62],[">", 63],
+    [";", 64],[":", 65],["%", 66]
   ]);
 
 
@@ -163,8 +163,10 @@ function signUp()
             //The child where this data is saved
             if(userType === "Patient"){
                 console.log("Patient");
+                var patientID = encryptPatientID(uid);
                 set(ref(db, 'Users/' + uid), {
                     userID: uid,
+                    patientID: patientID,
                     userFirstName: userFirstName,
                     userLastName: userLastName,
                     userEmail: userEmail,
@@ -172,7 +174,8 @@ function signUp()
                     userCountry: "Your Country?",
                     userAge: "Your Age?",
                     userBio: "User Biography",
-                    userPsychologist: "Your Psychologist?"
+                    userPsychologist: "Your Psychologist?",
+                    userJournals: userFirstName + "'s Journals",
                   });
             }else{
                 console.log("Administrator");
@@ -184,7 +187,8 @@ function signUp()
                     userType: userType,
                     userCountry: "Your Country?",
                     userProfession: "Your Profession?",
-                    userBio: "User Biography"
+                    userBio: "User Biography",
+                    userPatients: userFirstName + "'s Patients"
                   });
             }
             sendEmailVerification(auth.currentUser)
@@ -310,7 +314,7 @@ function saveProfileAdmin()
     else
     {
         var localUserID = sessionStorage.userID;
-        set(ref(db, 'Users/' + localUserID), {
+        update(ref(db, 'Users/' + localUserID), {
             userFirstName: userFirstName,
             userLastName: userLastName,
             userEmail: userEmail,
@@ -375,7 +379,7 @@ function saveProfilePatient()
     else
     {
         var localUserID = sessionStorage.userID;
-        set(ref(db, 'Users/' + localUserID), {
+        update(ref(db, 'Users/' + localUserID), {
             userFirstName: userFirstName,
             userLastName: userLastName,
             userEmail: userEmail,
@@ -659,6 +663,55 @@ function decryptPatientID(ID){
 }    
 window.decryptPatientID = decryptPatientID;
 
+function addPatient(patientID){
+    //First check if patient already exists in Admin's database
+
+    var localUserID = sessionStorage.userID;
+    var decryptedID = decryptPatientID(patientID);
+    var psychFName;
+    get(child(myRef, decryptedID)).then((snapshot) => {
+        if (snapshot.exists()) {
+            var profile = snapshot.val();
+            var userFName = profile.userFirstName;
+            var userLName = profile.userLastName;
+            var userEmail = profile.userEmail;
+            var userAge = profile.userAge;
+            var userCtry = profile.userCountry;
+            var patientID = profile.patientID;
+            var userPsychName = profile.userPsychologist;
+            var patientJournals = profile.userJournals;
+
+            console.log(patientID);
+
+            get(child(myRef, localUserID)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    var profile2 = snapshot.val();
+                    userPsychName = profile2.userFirstName + " " + profile2.userLastName;
+                    console.log(userPsychName);
+
+                    update(ref(db, 'Users/' + decryptedID), {
+                        userPsychologist: userPsychName,
+                    });
+                    console.log("Psychologist Name Updated");
+        
+                    update(ref(db, 'Users/' + localUserID + '/userPatients/' + patientID), {
+                        patientFirstName: userFName,
+                        patientLastName: userLName,
+                        patientEmail: userEmail,
+                        patientPsychologist: userPsychName,
+                        patientAge: userAge,
+                        patientCountry: userCtry,
+                        patientID: patientID,
+                        patientJournals: patientJournals
+                    });
+                    console.log("Patient Added");
+                }
+            });
+        } 
+    });
+}
+window.addPatient = addPatient;
+
 function updatePatientJournal(divElement, patientID){
     let journal = document.getElementById(divElement).innerHTML;
     console.log(journal);
@@ -670,6 +723,7 @@ function updatePatientJournal(divElement, patientID){
 window.updatePatientJournal = updatePatientJournal;
 
 function getModelAnalysis(journal){
+    var localUserID = sessionStorage.userID;
     query({"inputs": `${journal}`}).then((response) => {
         const lines = response[0];
 
@@ -682,15 +736,33 @@ function getModelAnalysis(journal){
         const thirdLabel = lines[2].label;
         const thirdScore = lines[2].score;
         
-        console.log(firstLabel);
-        console.log(firstScore);
+        var analysisResult = "1. " + firstLabel + ": " + firstScore + "\n" + "2. " + secondLabel + ": " + secondScore + "\n" + "3. " + thirdLabel + ": " + thirdScore;
+        console.log(analysisResult);
 
-        console.log(secondLabel);
-        console.log(secondScore);
+        var dateObj = new Date();
+        var seconds = dateObj.getUTCSeconds();
+        var minutes = dateObj.getUTCMinutes();
+        var hours = dateObj.getUTCHours();
+        var day = dateObj.getUTCDate();
+        var month = dateObj.getUTCMonth() + 1; //Months in terms of 1 to 12
+        var year = dateObj.getUTCFullYear();     
+        
 
-        console.log(thirdLabel);
-        console.log(thirdScore);
+        
+        var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
+        var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
+        var refDate = localDate.substring(0, 1) + "-" + localDate.substring(2, 3) + "-" + localDate.substring(4, 8);
 
+        console.log(localDate);
+        console.log(refDate);
+        console.log(journal);
+
+        update(ref(db, 'Users/' + localUserID + "/patientJournals/" + refDate), {
+            Journal: journal,
+            Results: analysisResult,
+            Date: localDate
+        });
+        
     });
 }
 window.getModelAnalysis = getModelAnalysis;
