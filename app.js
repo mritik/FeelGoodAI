@@ -175,6 +175,7 @@ function signUp()
                     userAge: "Your Age?",
                     userBio: "User Biography",
                     userPsychologist: "Your Psychologist?",
+                    userPsychologistID: "Your Psychologist's ID?",
                     userJournals: userFirstName + "'s Journals",
                   });
             }else{
@@ -668,7 +669,6 @@ function addPatient(patientID){
 
     var localUserID = sessionStorage.userID;
     var decryptedID = decryptPatientID(patientID);
-    var psychFName;
     get(child(myRef, decryptedID)).then((snapshot) => {
         if (snapshot.exists()) {
             var profile = snapshot.val();
@@ -679,6 +679,7 @@ function addPatient(patientID){
             var userCtry = profile.userCountry;
             var patientID = profile.patientID;
             var userPsychName = profile.userPsychologist;
+            var userPsychID = profile.userPsychologistID;
             var patientJournals = profile.userJournals;
 
             console.log(patientID);
@@ -691,14 +692,18 @@ function addPatient(patientID){
 
                     update(ref(db, 'Users/' + decryptedID), {
                         userPsychologist: userPsychName,
+                        userPsychologistID: localUserID,
                     });
                     console.log("Psychologist Name Updated");
+                    userPsychID = localUserID;
+                    console.log(userPsychID);
         
                     update(ref(db, 'Users/' + localUserID + '/userPatients/' + patientID), {
                         patientFirstName: userFName,
                         patientLastName: userLName,
                         patientEmail: userEmail,
                         patientPsychologist: userPsychName,
+                        patientPsychID: userPsychID,
                         patientAge: userAge,
                         patientCountry: userCtry,
                         patientID: patientID,
@@ -724,6 +729,7 @@ window.updatePatientJournal = updatePatientJournal;
 
 function getModelAnalysis(journal){
     var localUserID = sessionStorage.userID;
+    var encryptedID = encryptPatientID(localUserID);
     query({"inputs": `${journal}`}).then((response) => {
         const lines = response[0];
 
@@ -746,9 +752,9 @@ function getModelAnalysis(journal){
         var day = dateObj.getUTCDate();
         var month = dateObj.getUTCMonth() + 1; //Months in terms of 1 to 12
         var year = dateObj.getUTCFullYear();     
+        var userPsychID = "";
         
 
-        
         var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
         var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
         var refDate = localDate.substring(0, 1) + "-" + localDate.substring(2, 3) + "-" + localDate.substring(4, 8);
@@ -756,12 +762,26 @@ function getModelAnalysis(journal){
         console.log(localDate);
         console.log(refDate);
         console.log(journal);
+        //save PsychologistID in user's database and update journals there too 
 
         update(ref(db, 'Users/' + localUserID + "/patientJournals/" + refDate), {
             Journal: journal,
             Results: analysisResult,
             Date: localDate
         });
+
+        get(child(myRef, localUserID)).then((snapshot) => {
+            if (snapshot.exists()) {
+                userPsychID = snapshot.val().userPsychologistID;
+                update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID + "/patientJournals/" + refDate), {
+                    Journal: journal,
+                    Results: analysisResult,
+                    Date: localDate,
+                });        
+            } 
+            }).catch((error) => {
+            console.error(error);
+            });
         
     });
 }
