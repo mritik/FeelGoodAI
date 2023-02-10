@@ -177,6 +177,8 @@ function signUp()
                     userPsychologist: "Your Psychologist?",
                     userPsychologistID: "Your Psychologist's ID?",
                     userJournals: userFirstName + "'s Journals",
+                    userLastUpdate: "",
+                    userPriorityLevel: "",
                   });
             }else{
                 console.log("Administrator");
@@ -189,7 +191,7 @@ function signUp()
                     userCountry: "Your Country?",
                     userProfession: "Your Profession?",
                     userBio: "User Biography",
-                    userPatients: userFirstName + "'s Patients"
+                    userPatients: userFirstName + "'s Patients",
                   });
             }
             sendEmailVerification(auth.currentUser)
@@ -681,6 +683,8 @@ function addPatient(patientID){
             var userPsychName = profile.userPsychologist;
             var userPsychID = profile.userPsychologistID;
             var patientJournals = profile.userJournals;
+            var patientLastUpdate = profile.userLastUpdate;
+            var patientPriorityLevel = profile.userPriorityLevel;
 
             console.log(patientID);
 
@@ -707,7 +711,9 @@ function addPatient(patientID){
                         patientAge: userAge,
                         patientCountry: userCtry,
                         patientID: patientID,
-                        patientJournals: patientJournals
+                        patientJournals: patientJournals,
+                        patientLastUpdate: patientLastUpdate,
+                        patientPriorityLevel: patientPriorityLevel,
                     });
                     console.log("Patient Added");
                 }
@@ -726,6 +732,40 @@ function updatePatientJournal(divElement, patientID){
     getModelAnalysis(journal);
 }
 window.updatePatientJournal = updatePatientJournal;
+
+function loadPatients(){
+    var userID = sessionStorage.userID;
+    var myRef = ref(db, 'Users/' + userID);
+
+    get(child(myRef, '/userPatients')).then((snapshot) => {
+        if (snapshot.exists()) {
+            var profiles = snapshot.val()
+            Object.keys(profiles).forEach(function(userKey) {
+                const user = profiles[userKey];
+                const keys = Object.keys(user);
+                // keys.forEach(function(key) {
+                //     const value = user[key];
+                //     console.log(key, value);
+                // });
+                const firstName = user.patientFirstName;
+                const lastName = user.patientLastName;
+                const email = user.patientEmail;
+                const age = user.patientAge;
+                const country = user.patientCountry;
+                const patientID = user.patientID;
+                const patientPsychName = user.patientPsychologist;
+                const patientPsychID = user.patientPsychID;
+                const patientJournals = user.patientJournals;
+                const patientLastUpdate = user.patientLastUpdate;
+                const patientPriorityLevel = user.patientPriorityLevel;
+
+                console.log(firstName, lastName, email, age, country, patientID, patientPsychName, patientPsychID, patientJournals, patientLastUpdate, patientPriorityLevel);
+                
+            });
+        }
+    });
+}
+window.loadPatients = loadPatients;
 
 function getModelAnalysis(journal){
     var localUserID = sessionStorage.userID;
@@ -759,11 +799,12 @@ function getModelAnalysis(journal){
         var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
         var refDate = localDate.substring(0, 1) + "-" + localDate.substring(2, 3) + "-" + localDate.substring(4, 8);
 
+        //Consider 1 digit vs 2 digit for day and month - Use firebase timeStamp method and keep everything in firebase in UTC
         console.log(localDate);
         console.log(refDate);
         console.log(journal);
         //save PsychologistID in user's database and update journals there too 
-
+        
         update(ref(db, 'Users/' + localUserID + "/patientJournals/" + refDate), {
             Journal: journal,
             Results: analysisResult,
@@ -777,6 +818,10 @@ function getModelAnalysis(journal){
                     Journal: journal,
                     Results: analysisResult,
                     Date: localDate,
+                });     
+                update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID), {
+                    patientPriorityLevel: "",
+                    patientLastUpdate: "",
                 });        
             } 
             }).catch((error) => {
