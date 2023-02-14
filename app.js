@@ -52,7 +52,7 @@ const conversion = new Map([
     ["G", 32],["H", 33],["I", 34],["J", 35],["K", 36],["L", 37],["M", 38],["N", 39],
     ["O", 40],["P", 41],["Q", 42],["R", 43],["S", 44],["T", 45],["U", 46],["V", 47],
     ["W", 48],["X", 49],["Y", 50],["Z", 51],["0", 52],["1", 53],["2", 54],["3", 55],
-    ["4", 56],["5", 57],["6", 58],["7", 59],["8", 60],["9", 61],["<", 62],[">", 63],
+    ["4", 56],["5", 57],["6", 58],["7", 59],["8", 60],["9", 61],["@", 62],["&", 63],
     [";", 64],[":", 65],["%", 66]
   ]);
 
@@ -716,10 +716,12 @@ function addPatient(patientID){
                         patientPriorityLevel: patientPriorityLevel,
                     });
                     console.log("Patient Added");
+                    window.location.reload();
                 }
             });
         } 
     });
+    
 }
 window.addPatient = addPatient;
 
@@ -759,6 +761,22 @@ function loadPatients(){
                 const patientLastUpdate = user.patientLastUpdate;
                 const patientPriorityLevel = user.patientPriorityLevel;
 
+                let card = document.createElement("div");
+                card.id = `patient${patientID}`;
+                card.classList.add("card");
+                card.innerHTML = `
+                <div class="cardRow">
+                <h4 onclick="redirectAdminToPatientJournal('${patientID}')"><b>${firstName} ${lastName}</b></h4>
+                <a onclick="redirectPatientSettings('${patientID}')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
+                </div>
+                <p id="${patientID}ID">${patientID}</p>
+                <p>Last Update: ${patientLastUpdate} </p>
+                <p>Priority Level: ${patientPriorityLevel} </p>
+                `
+
+                let container = document.querySelector("#patientFlex");
+                container.appendChild(card);
+
                 console.log(firstName, lastName, email, age, country, patientID, patientPsychName, patientPsychID, patientJournals, patientLastUpdate, patientPriorityLevel);
                 
             });
@@ -797,10 +815,11 @@ function getModelAnalysis(journal){
 
         var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
         var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
-        var refDate = localDate.substring(0, 1) + "-" + localDate.substring(2, 3) + "-" + localDate.substring(4, 8);
+        var dateLength = localDate.length - 12;
+        var refDate = (localDate.replaceAll('/', '-')).substring(0, dateLength);
 
         //Consider 1 digit vs 2 digit for day and month - Use firebase timeStamp method and keep everything in firebase in UTC
-        console.log(localDate);
+        console.log(localDate); 
         console.log(refDate);
         console.log(journal);
         //save PsychologistID in user's database and update journals there too 
