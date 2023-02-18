@@ -13,7 +13,7 @@ const firebaseConfig = {
   
 
 const firebaseApp = initializeApp(firebaseConfig);
-import { getDatabase, ref, set, child, get, push, update } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
+import { getDatabase, ref, set, child, get, push, update, remove } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, setPersistence, signInWithEmailAndPassword, browserSessionPersistence, onAuthStateChanged, signOut, sendEmailVerification, updateEmail, sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
 
 const db = getDatabase();
@@ -174,10 +174,12 @@ function signUp()
                     userCountry: "Your Country?",
                     userAge: "Your Age?",
                     userBio: "User Biography",
-                    userPsychologist: "Your Psychologist?",
-                    userPsychologistID: "Your Psychologist's ID?",
-                    userJournals: userFirstName + "'s Journals",
+                    userPsychologist: "No Psychologist",
+                    userPsychologistID: "No Psychologist's ID",
+                    patientJournals: userFirstName + "'s Journals",
                     userLastUpdate: "",
+                    viewResults: "True",
+                    journalFrequency: "Every Day",
                     userPriorityLevel: "",
                   });
             }else{
@@ -439,6 +441,95 @@ function getProfilePatient(){
 }
 window.getProfilePatient = getProfilePatient;
 
+function getPatientInfo(patientID){
+    
+    var patientUserID = decryptPatientID(patientID);
+    get(child(myRef, patientUserID)).then((snapshot) => {
+            if (snapshot.exists()) {
+                var profile = snapshot.val();
+                var userFName = profile.userFirstName;
+                var userLName = profile.userLastName;
+                var viewResults = profile.viewResults;
+                var journalFrequency = profile.journalFrequency;
+                var priorityLevel = profile.userPriorityLevel;
+                console.log(viewResults);
+                console.log(journalFrequency);
+                console.log(priorityLevel);
+                
+
+                document.getElementById("patientID").innerText = patientID;
+                document.getElementById("patientName").innerText = userFName + " " + userLName;
+                document.getElementById("viewResults").value = viewResults;
+                if(journalFrequency.match(/^-?\d+$/)){
+                    document.getElementById('journalFrequency').value = "Custom";
+                    document.getElementById("customInputJournal").style.display = "inline-block";
+                    document.getElementById('customInputJournal').value = journalFrequency;
+                }
+                else{
+                    document.getElementById('journalFrequency').value = journalFrequency;
+                }
+                document.getElementById('priorityLevel').value = priorityLevel;
+                console.log("Profile Retrieved");
+            } 
+            }).catch((error) => {
+            console.error(error);
+            });
+
+}
+window.getPatientInfo = getPatientInfo;
+
+function savePatientInfo(patientID){
+    
+    let viewResults = document.getElementById("viewResults").value 
+    let journalFrequency = document.getElementById("journalFrequency").value 
+    let priorityLevel = document.getElementById("priorityLevel").value 
+    if(journalFrequency == "Custom"){
+        journalFrequency = document.getElementById("customInputJournal").value;
+    }
+
+    var patientUserID = decryptPatientID(patientID);
+    update(ref(db, 'Users/' + patientUserID), {
+        viewResults: viewResults,
+        journalFrequency: journalFrequency,
+        userPriorityLevel: priorityLevel,
+        
+      });
+    update(ref(db, 'Users/' + sessionStorage.userID + '/userPatients/' + patientID), {
+        patientViewResults: viewResults,
+        patientJournalFrequency: journalFrequency,
+        patientPriorityLevel: priorityLevel,
+        
+      });
+        console.log("Profile Updated");
+        getPatientInfo(patientID);
+
+}
+window.savePatientInfo = savePatientInfo;
+
+function removePatient(patientID){
+    
+    var action = confirm("Are you sure you want to remove this patient? This action cannot be undone");
+
+    if(action == false){
+        return;
+    }
+    else{
+        var patientUserID = decryptPatientID(patientID);
+        update(ref(db, 'Users/' + patientUserID), {
+            userPsychologist: "No Psychologist",
+            userPriorityLevel: "",
+            viewResults: "True",
+            journalFrequency: "Every Day",
+        });
+        remove(ref(db, 'Users/' + sessionStorage.userID + '/userPatients/' + patientID), {
+        });
+        console.log("Patient Removed");
+        window.location = "adminHome.html";
+    }
+
+}
+window.removePatient = removePatient;
+
 function checkUserSignedIn(){
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -536,6 +627,7 @@ window.settingsRedirect = settingsRedirect;
 
 function redirectPatientSettings(patientID){
     //Use patient ID to get patient information and display it on the page
+    sessionStorage.patientID = patientID;
     window.location = "modifyPatientSettings.html";
 }
 window.redirectPatientSettings = redirectPatientSettings;
@@ -682,9 +774,11 @@ function addPatient(patientID){
             var patientID = profile.patientID;
             var userPsychName = profile.userPsychologist;
             var userPsychID = profile.userPsychologistID;
-            var patientJournals = profile.userJournals;
+            var patientJournals = profile.patientJournals;
             var patientLastUpdate = profile.userLastUpdate;
             var patientPriorityLevel = profile.userPriorityLevel;
+            var patientViewResults = profile.viewResults;
+            var patientJournalFrequency = profile.journalFrequency;
 
             console.log(patientID);
 
@@ -714,6 +808,8 @@ function addPatient(patientID){
                         patientJournals: patientJournals,
                         patientLastUpdate: patientLastUpdate,
                         patientPriorityLevel: patientPriorityLevel,
+                        patientViewResults: patientViewResults,
+                        patientJournalFrequency: patientJournalFrequency,
                     });
                     console.log("Patient Added");
                     window.location.reload();
@@ -769,9 +865,9 @@ function loadPatients(){
                 <h4 onclick="redirectAdminToPatientJournal('${patientID}')"><b>${firstName} ${lastName}</b></h4>
                 <a onclick="redirectPatientSettings('${patientID}')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
                 </div>
-                <p id="${patientID}ID">${patientID}</p>
-                <p>Last Update: ${patientLastUpdate} </p>
-                <p>Priority Level: ${patientPriorityLevel} </p>
+                <b><p id="${patientID}ID">ID: ${patientID}</p></b>
+                <p><b>Last Update: </b> ${patientLastUpdate} </p>
+                <p><b> Priority Level: </b> ${patientPriorityLevel} </p>
                 `
 
                 let container = document.querySelector("#patientFlex");
@@ -815,7 +911,12 @@ function getModelAnalysis(journal){
 
         var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
         var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
-        var dateLength = localDate.length - 12;
+        if(localDate.substring(12, 13) == ":"){
+            var dateLength = localDate.length - 12;
+        }
+        else{
+            var dateLength = localDate.length - 13;
+        }
         var refDate = (localDate.replaceAll('/', '-')).substring(0, dateLength);
 
         //Consider 1 digit vs 2 digit for day and month - Use firebase timeStamp method and keep everything in firebase in UTC
@@ -839,8 +940,7 @@ function getModelAnalysis(journal){
                     Date: localDate,
                 });     
                 update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID), {
-                    patientPriorityLevel: "",
-                    patientLastUpdate: "",
+                    patientLastUpdate: localDate,
                 });        
             } 
             }).catch((error) => {

@@ -12,7 +12,7 @@
         <title>FeelGood AI</title>
     </head>
     
-    <body onload="checkAdminSignedIn(), getPatientInfo()">
+    <body onload="checkAdminSignedIn(), getPatientInfo(patientID)">
         
         <div class="flex-container">
             <a onclick="homeRedirect()"><span class="material-symbols-outlined" id="left" style="font-size:40px;">home</span></a>
@@ -29,46 +29,68 @@
 
         <div id="notifFlex" style="height: auto;">
             <div class="card" id="notifDisplay" style="width: 500px; height: auto; overflow: auto;">
+                <b><p id="IDOfPatient" style="display: inline-block; margin: 10px;">Patient ID:</p></b>
+                <p id="patientID" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">Patient ID</p>
+                <br>
+
                 <b><p id="nameOfPatient" style="display: inline-block; margin: 10px;">Patient Name:</p></b>
-                <input type="text" id="userName" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;"></input>
-               
+                <p id="patientName" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">Patient Name</p>
+
                 <br>
 
                 <b><p style="display: inline-block; margin: 10px;">Allowing Viewing Results:</p></b>
-                <button onclick="allowViewing(patientName)" style="display: inline-block; width: 50; background-color: #2acf11; border-radius: 4px; border-color:#2acf11;">Yes</button>
-                <button onclick="disallowViewing(patientName)" style="display: inline-block; margin: 5px; width: 50; background-color: #ea2208; border-radius: 4px; border-color:#ea2208;">No</button>
+                <select name="viewResults" id="viewResults" data-role="slider" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">
+                    <option value=""></option>
+                    <option value="True" style="background-color: #2acf11;">Yes</option>
+                    <option value="False" style="background-color: #ea2208;">No</option>
+                </select> 
+                <!-- <button onclick="allowViewing(patientID)" style="display: inline-block; width: 50; background-color: #2acf11; border-radius: 4px; border-color:#2acf11;">Yes</button>
+                <button onclick="disallowViewing(patientID)" style="display: inline-block; margin: 5px; width: 50; background-color: #ea2208; border-radius: 4px; border-color:#ea2208;">No</button> -->
+
+                
                 
                 <br>
 
                 <b><p style="display: inline-block; margin: 10px;">Journal Frequency:</p></b>
-                <select onchange="checkCustomInput()" id="journalFrequency" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">
-                    <option value="1"></option>
-                    <option value="2">Custom</option>
-                    <option value="3">Every Day</option>
-                    <option value="4">Every Week</option>
-                    <option value="5">Every Month</option>
+                <select onload="checkCustomInput()", onchange="checkCustomInput()" id="journalFrequency" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">
+                    <option value=""></option>
+                    <option value="Custom">Custom</option>
+                    <option value="Every Day">Every Day</option>
+                    <option value="Every Week">Every Week</option>
+                    <option value="Every Month">Every Month</option>
                 </select>
-                <input type="text" id="customInputJournal" placeholder="Enter # of days" style="display: none; background-color: #84bee1; text-align: center;"></input>
+                <input onblur="customValue()" type="text" id="customInputJournal" placeholder="Enter # of days" style="display: none; background-color: #84bee1; text-align: center;"></input>
 
                 <br>
 
                 <b><p style="display: inline-block; margin: 10px;">Priority Level:</p></b>
                 <select id="priorityLevel" style="display: inline-block; margin: 10px; background-color: #84bee1; text-align: center;">
-                    <option value="1"></option>
-                    <option value="2">Low</option>
-                    <option value="3">Medium</option>
-                    <option value="4">High</option>
+                    <option value=""></option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
                 </select>
                 <br>
+                <br>
 
-                <button onclick="getAdminPatientSettings()" style="width: 100; background-color: #ea2208; border-radius: 4px; border-color:#ea2208; float: left;">Revert Changes</button>
-                <button onclick="saveAdminPatientSettings()" style="width: 100; background-color: #4583df; border-radius: 4px; border-color:#4583df; float: right;">Save Changes</button>
+                <button onclick="removePatient(patientID)" style="width: 100; background-color: #ea2208; border-radius: 4px; border-color:#ea2208; float: left;">Remove/Delete Patient</button>
+                <button onclick="savePatientInfo(patientID)" style="width: 100; background-color: #4583df; border-radius: 4px; border-color:#4583df; float: right;">Save Changes</button>
             </div>
         </div>
 
         <script>
+            var patientID = sessionStorage.getItem("patientID");
+
+            function customValue(){
+                var customValue = document.getElementById("customInputJournal").value;
+                journalFrequency = document.getElementById('journalFrequency');
+                //journalFrequency.options[journalFrequency.options.length] = new Option(customValue, customValue);
+
+                document.getElementById("journalFrequency").value = "Custom";
+            }
+
             function checkCustomInput() {
-                if (document.getElementById("journalFrequency").value == 2) {
+                if (document.getElementById("journalFrequency").value == "Custom") {
                     document.getElementById("customInputJournal").style.display = "inline-block";
                 } else {
                     document.getElementById("customInputJournal").style.display = "none";
