@@ -28,13 +28,6 @@ const cipKey = [
     [11, 24, 13]
 ];
 //Use the Euclidean Algorithm and multiply by the GCD
-/* Real Inverse Key uses mod 61
-const cipKeyInv = [
-    [34, 115, -72],
-    [-138, -128, 188],
-    [226, 139, -218]
-];
-*/
 
 const cipKeyInv = [
     [38, 30, 22],
@@ -474,7 +467,6 @@ function getPatientInfo(patientID){
             }).catch((error) => {
             console.error(error);
             });
-
 }
 window.getPatientInfo = getPatientInfo;
 
@@ -500,10 +492,10 @@ function savePatientInfo(patientID){
         patientPriorityLevel: priorityLevel,
         
       });
-        console.log("Profile Updated");
-        getPatientInfo(patientID);
+    console.log("Profile Updated");
+    getPatientInfo(patientID);
 
-}
+} 
 window.savePatientInfo = savePatientInfo;
 
 function removePatient(patientID){
@@ -524,6 +516,7 @@ function removePatient(patientID){
         remove(ref(db, 'Users/' + sessionStorage.userID + '/userPatients/' + patientID), {
         });
         console.log("Patient Removed");
+        alert("Patient Removed. Click ok to be redirected to the home page");
         window.location = "adminHome.html";
     }
 
@@ -759,11 +752,29 @@ function decryptPatientID(ID){
 window.decryptPatientID = decryptPatientID;
 
 function addPatient(patientID){
-    //First check if patient already exists in Admin's database
-
+    
     var localUserID = sessionStorage.userID;
     var decryptedID = decryptPatientID(patientID);
+    var isPatient = false;
+
+    //First check if patient already exists in Admin's database
+    get(child(myRef, `${localUserID}/userPatients/${patientID}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          console.log("User is already your patient");
+          isPatient = true;
+        } else {
+          console.log("User is not yet your patient so he will be added!");
+        }
+    }).catch((error) => {
+        console.error(error);
+    });
+
+    
     get(child(myRef, decryptedID)).then((snapshot) => {
+        if(isPatient == true){
+            document.getElementById("warningText").innerHTML = "This person is already your patient!";
+            return;
+        }
         if (snapshot.exists()) {
             var profile = snapshot.val();
             var userFName = profile.userFirstName;
@@ -812,10 +823,18 @@ function addPatient(patientID){
                         patientJournalFrequency: patientJournalFrequency,
                     });
                     console.log("Patient Added");
-                    window.location.reload();
+                    document.getElementById("warningText").style.color = "green";
+                    document.getElementById("warningText").innerHTML = "Patient Added! Page will reload in 2 seconds to reflect changes";
+                    setTimeout(reloadPage, 2000)
+                }
+                else{
+                    console.log("Error: User does not exist");
                 }
             });
         } 
+        else{
+            console.log("Error: Patient does not exist");
+        }
     });
     
 }
@@ -881,6 +900,126 @@ function loadPatients(){
 }
 window.loadPatients = loadPatients;
 
+function searchPatients(patientName){
+    var userID = sessionStorage.userID;
+    var myRef = ref(db, 'Users/' + userID);
+    var searchName = patientName.value;
+    console.log(searchName);
+    let container = document.querySelector("#patientFlex");
+    $(container).html("");
+
+    get(child(myRef, '/userPatients')).then((snapshot) => {
+        if (snapshot.exists()) {
+            var profiles = snapshot.val()
+            Object.keys(profiles).forEach(function(userKey) {
+                const user = profiles[userKey];
+                const keys = Object.keys(user);
+ 
+                const firstName = user.patientFirstName;
+                const lastName = user.patientLastName;
+                const patientID = user.patientID;
+                const patientLastUpdate = user.patientLastUpdate;
+                const patientPriorityLevel = user.patientPriorityLevel;
+                let patientFullName = firstName + " " + lastName;
+
+                if(patientFullName.includes(searchName)){
+                    let card = document.createElement("div");
+                    card.id = `patient${patientID}`;
+                    card.classList.add("card");
+                    card.innerHTML = `
+                    <div class="cardRow">
+                    <h4 onclick="redirectAdminToPatientJournal('${patientID}')"><b>${firstName} ${lastName}</b></h4>
+                    <a onclick="redirectPatientSettings('${patientID}')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
+                    </div>
+                    <b><p id="${patientID}ID">ID: ${patientID}</p></b>
+                    <p><b>Last Update: </b> ${patientLastUpdate} </p>
+                    <p><b> Priority Level: </b> ${patientPriorityLevel} </p>
+                    `
+    
+                    container.appendChild(card);
+    
+                    console.log("Patient Found");
+                }
+                else{
+                    console.log("Patient Not Found");
+                }
+            });
+        }
+    });
+}
+window.searchPatients = searchPatients;
+
+function loadJournals(){
+    var userID = sessionStorage.userID;
+    var IDRef = ref(db, 'Users/');
+    var myRef = ref(db, 'Users/' + userID);
+    var viewPermissions = "";
+
+    get(child(IDRef, userID)).then((snapshot) => {
+        if (snapshot.exists()) {
+            viewPermissions = snapshot.val().viewResults;
+        }
+        }).catch((error) => {
+        console.error(error);
+        });
+
+    get(child(myRef, '/patientJournals')).then((snapshot) => {
+        if (snapshot.exists()) {
+            var profiles = snapshot.val()
+            Object.keys(profiles).forEach(function(userKey) {
+                const journal = profiles[userKey];
+                const keys = Object.keys(journal);
+                // keys.forEach(function(key) {
+                //     const value = user[key];
+                //     console.log(key, value);
+                // });
+                const Date = journal.Date;
+                const Journal = journal.Journal;
+                const Emotion1 = journal.Emotion1;
+                const Emotion2 = journal.Emotion2;
+                const Emotion3 = journal.Emotion3;
+                console.log(Date, Journal, Emotion1, Emotion2, Emotion3);
+
+                let stringDate = Date.toString();
+
+                let card = document.createElement("div");
+                card.id = `journal${Date}`;
+                card.classList.add("card");
+                if(viewPermissions == "False"){
+                    card.innerHTML = `
+                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                    <p><b> Last Update: </b> ${Date} </p>
+                    <p><b> Journal Entry: </b> ${Journal} </p>
+                    <p><b> Please ask your Administrator for your results =) </b></p>
+                    </div>
+                    `
+                }
+                else{
+                    card.innerHTML = `
+                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                    <p><b>Last Update: </b> ${Date} </p>
+                    <p><b> Journal Entry: </b> ${Journal} </p>
+                    <p><b> Embedded Emotions: </b></p>
+                    <p>1. ${Emotion1}</p>
+                    <p>2. ${Emotion2}</p>
+                    <p>3. ${Emotion3}</p>
+                    </div>
+                    `
+                }
+
+                let container = document.querySelector("#patientJournalFlex");
+                container.insertBefore(card, container.firstChild);
+                
+            });
+        }
+    });
+}
+window.loadJournals = loadJournals;
+
 function getModelAnalysis(journal){
     var localUserID = sessionStorage.userID;
     var encryptedID = encryptPatientID(localUserID);
@@ -896,6 +1035,9 @@ function getModelAnalysis(journal){
         const thirdLabel = lines[2].label;
         const thirdScore = lines[2].score;
         
+        var Result1 = "1. " + firstLabel + ": " + firstScore + "\n";
+        var Result2 = "2. " + secondLabel + ": " + secondScore + "\n";
+        var Result3 = "3. " + thirdLabel + ": " + thirdScore + "\n";
         var analysisResult = "1. " + firstLabel + ": " + firstScore + "\n" + "2. " + secondLabel + ": " + secondScore + "\n" + "3. " + thirdLabel + ": " + thirdScore;
         console.log(analysisResult);
 
@@ -927,7 +1069,9 @@ function getModelAnalysis(journal){
         
         update(ref(db, 'Users/' + localUserID + "/patientJournals/" + refDate), {
             Journal: journal,
-            Results: analysisResult,
+            Emotion1: Result1,
+            Emotion2: Result2,
+            Emotion3: Result3,
             Date: localDate
         });
 
@@ -936,17 +1080,20 @@ function getModelAnalysis(journal){
                 userPsychID = snapshot.val().userPsychologistID;
                 update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID + "/patientJournals/" + refDate), {
                     Journal: journal,
-                    Results: analysisResult,
+                    Emotion1: Result1,
+                    Emotion2: Result2,
+                    Emotion3: Result3,
                     Date: localDate,
                 });     
                 update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID), {
                     patientLastUpdate: localDate,
                 });        
             } 
+            reloadPage();
             }).catch((error) => {
             console.error(error);
             });
-        
+     
     });
 }
 window.getModelAnalysis = getModelAnalysis;
@@ -963,6 +1110,11 @@ async function query(data) {
     const result = await response.json();
     return result;
 }
+
+function reloadPage(){
+    window.location.reload();
+}
+window.reloadPage = reloadPage;
 
 
 

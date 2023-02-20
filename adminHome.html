@@ -28,8 +28,8 @@
     <br>
     <div class="toolbar">
       <div id="patientSearch">
-        <input type="text" id="patientSearchInput" placeholder="Search Patient...">
-        <button onclick="searchPatients()">
+        <input onkeyup="checkEmpty(patientSearchInput)" type="text" id="patientSearchInput" placeholder="Search Patient...">
+        <button onclick="searchPatients(patientSearchInput)">
           <i class="bx bx-search"></i>
         </button>
       </div>
@@ -50,38 +50,23 @@
         </button>
       </div>
     </div>  
+    <br>
+    <div id="warningDiv">
+      <center><b><p id="warningText" style="color: red;"></p></b></center>
+    </div>
     <div id="patientFlex">
-      <!-- <div class="card">
-        <div class="cardRow">
-          <h4 onclick="redirectAdminToPatientJournal(patientID1)"><b>Patient 1</b></h4>
-          <a onclick="redirectPatientSettings('patientID')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
-        </div>
-        <p id="patientID1">1D00J29</p>
-        <p>Last Update: </p>
-        <p>Priority Level: </p>
-      </div>
-      
-      <div class="card">
-        <div class="cardRow">
-          <h4 onclick="redirectAdminToPatientJournal(patientID2)"><b>Patient 2</b></h4>
-          <a onclick="redirectPatientSettings('patientID')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
-        </div>
-        <p id="patientID2">1D00J30</p>
-        <p>Last Update: </p>
-        <p>Priority Level: </p>
-      </div>
-      
-      <div class="card">
-        <div class="cardRow">
-          <h4 onclick="redirectAdminToPatientJournal(patientID3)"><b>Patient 3</b></h4>
-          <a onclick="redirectPatientSettings('patientID')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
-        </div>
-        <p id="patientID3">1D00J31</p>
-        <p>Last Update: </p>
-        <p>Priority Level: </p>
-      </div>
-    </div> -->
-  </div>
+  
+    </div>
+
+    <script>
+      function checkEmpty(input) {
+        if (input.value == "") {
+          searchPatients(input);
+        } else {
+          
+        }
+      }
+    </script>
   
   
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -94,7 +79,6 @@
   <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script>
   <script src="app.js" type="module"></script>       
   <script src="global.js" type="module"></script>
-  <script src="script.js"></script>
   
 </body>
 
