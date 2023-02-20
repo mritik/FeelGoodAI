@@ -40,12 +40,12 @@
         </button>
       </div>
       <div id="filterSelect">
-        <select>
-          <option value="Alphabetical">Alphabetical</option>
-          <option value="lastUpdate">Last Update</option>
+        <select id="sortSelect">
           <option value="priorityLevel">Priority Level</option>
+          <option value="lastUpdate">Last Update</option>
+          <option value="alphabetical">Alphabetical</option>
         </select>
-        <button onclick="filterPatients()">
+        <button onclick="sortPatients(sortSelect.value)">
           <i class="bx bx-check"></i>
         </button>
       </div>

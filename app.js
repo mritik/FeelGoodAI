@@ -509,6 +509,7 @@ function removePatient(patientID){
         var patientUserID = decryptPatientID(patientID);
         update(ref(db, 'Users/' + patientUserID), {
             userPsychologist: "No Psychologist",
+            userPsychologistID: "No Psychologist ID",
             userPriorityLevel: "",
             viewResults: "True",
             journalFrequency: "Every Day",
@@ -627,15 +628,64 @@ window.redirectPatientSettings = redirectPatientSettings;
 
 function redirectAdminToPatientJournal(patientID){
     //Use patient ID to get patient information and display it on the page
+    sessionStorage.patientID = patientID;
     window.location = "adminPatientJournal.html";
 }
 window.redirectAdminToPatientJournal = redirectAdminToPatientJournal;
 
+function loadPatientJournal(patientID){
+    var userID = sessionStorage.userID;
+    var myRef = ref(db, 'Users/' + userID + '/userPatients/' + patientID);
 
-function generateRandomPatientID(){
+    get(child(myRef, '/patientJournals')).then((snapshot) => {
+        if (snapshot.exists()) {
+            var profiles = snapshot.val()
+            Object.keys(profiles).forEach(function(userKey) {
+                const journal = profiles[userKey];
+                const keys = Object.keys(journal);
+                // keys.forEach(function(key) {
+                //     const value = user[key];
+                //     console.log(key, value);
+                // });
+                const Date = journal.Date;
+                const Journal = journal.Journal;
+                const Emotion1 = journal.Emotion1;
+                const Emotion2 = journal.Emotion2;
+                const Emotion3 = journal.Emotion3;
+                console.log(Date, Journal, Emotion1, Emotion2, Emotion3);
+
+                let stringDate = Date.toString();
+
+                let card = document.createElement("div");
+                card.id = `journal${Date}`;
+                card.classList.add("card");
+                
+                card.innerHTML = `
+                <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                <p><b>Last Update: </b> ${Date} </p>
+                <p><b> Journal Entry: </b> ${Journal} </p>
+                <p><b> Embedded Emotions: </b></p>
+                <p>${Emotion1}</p>
+                <p>${Emotion2}</p>
+                <p>${Emotion3}</p>
+
+                <div id="resultsButton" style="margin-left: 0px; margin-top: 0px; float: right;">
+                    <button onclick="changeResultsViewing('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
+                </div>
+                </div>
+                `
+
+                let container = document.querySelector("#patientJournalFlex");
+                container.insertBefore(card, container.firstChild);
+                
+            });
+        }
+    });
 
 }
-window.generateRandomPatientID = generateRandomPatientID;
+window.loadPatientJournal = loadPatientJournal;
 
 function sendUserReset()
 {
@@ -753,6 +803,10 @@ window.decryptPatientID = decryptPatientID;
 
 function addPatient(patientID){
     
+    if(patientID == ""){
+        document.getElementById("warningText").innerHTML = "Please enter a Patient ID!";
+        return;
+    }
     var localUserID = sessionStorage.userID;
     var decryptedID = decryptPatientID(patientID);
     var isPatient = false;
@@ -834,11 +888,33 @@ function addPatient(patientID){
         } 
         else{
             console.log("Error: Patient does not exist");
+            document.getElementById("warningText").innerHTML = "The ID you entered does not belong to a valid patient!";
         }
     });
     
 }
 window.addPatient = addPatient;
+
+function sortPatients(sortBy){
+    console.log(sortBy);
+    if(sortBy == "priorityLevel"){
+
+    }
+    else if(sortBy == "lastUpdate"){
+
+    }
+    else if(sortBy == "alphabetical"){
+
+    }
+    else{
+        console.log("Something went wrong");
+    }
+
+}
+window.sortPatients = sortPatients;
+
+
+
 
 function updatePatientJournal(divElement, patientID){
     let journal = document.getElementById(divElement).innerHTML;
@@ -903,7 +979,7 @@ window.loadPatients = loadPatients;
 function searchPatients(patientName){
     var userID = sessionStorage.userID;
     var myRef = ref(db, 'Users/' + userID);
-    var searchName = patientName.value;
+    var searchName = (patientName.value).toLowerCase();
     console.log(searchName);
     let container = document.querySelector("#patientFlex");
     $(container).html("");
@@ -921,6 +997,7 @@ function searchPatients(patientName){
                 const patientLastUpdate = user.patientLastUpdate;
                 const patientPriorityLevel = user.patientPriorityLevel;
                 let patientFullName = firstName + " " + lastName;
+                patientFullName = patientFullName.toLowerCase();
 
                 if(patientFullName.includes(searchName)){
                     let card = document.createElement("div");
@@ -954,6 +1031,26 @@ function loadJournals(){
     var IDRef = ref(db, 'Users/');
     var myRef = ref(db, 'Users/' + userID);
     var viewPermissions = "";
+    var isToday = false;
+
+    var dateObj = new Date();
+    var seconds = dateObj.getUTCSeconds();
+    var minutes = dateObj.getUTCMinutes();
+    var hours = dateObj.getUTCHours();
+    var day = dateObj.getUTCDate();
+    var month = dateObj.getUTCMonth() + 1; //Months in terms of 1 to 12
+    var year = dateObj.getUTCFullYear();         
+
+    var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
+    var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
+    if(localDate.substring(12, 13) == ":"){
+        var dateLength = localDate.length - 12;
+    }
+    else{
+        var dateLength = localDate.length - 13;
+    }
+    localDate = localDate.substring(0, dateLength);
+    console.log(localDate);
 
     get(child(IDRef, userID)).then((snapshot) => {
         if (snapshot.exists()) {
@@ -982,41 +1079,101 @@ function loadJournals(){
 
                 let stringDate = Date.toString();
 
-                let card = document.createElement("div");
-                card.id = `journal${Date}`;
-                card.classList.add("card");
-                if(viewPermissions == "False"){
-                    card.innerHTML = `
-                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
-                    <p><b> Last Update: </b> ${Date} </p>
-                    <p><b> Journal Entry: </b> ${Journal} </p>
-                    <p><b> Please ask your Administrator for your results =) </b></p>
-                    </div>
-                    `
+                if(stringDate.includes(localDate)){
+                    isToday = true;
+                    console.log("Date is today");
+                    let card = document.createElement("div");
+                    card.id = `journal${Date}`;
+                    card.classList.add("card");
+                    if(viewPermissions == "False"){
+                        card.innerHTML = `
+                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+                        <p><b> Last Update: </b> ${Date} </p>
+                        <p><b> Journal Entry: </b> ${Journal} </p>
+                        <p><b> Please ask your Administrator for your results =) </b></p>
+                        <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
+                            <button onclick="updatePatientJournal('patientTodayJournal', patientID)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
+                        </div>
+                        </div>
+                        `
+                    }
+                    else{
+                        card.innerHTML = `
+                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+                        <p><b>Last Update: </b> ${Date} </p>
+                        <p><b> Journal Entry: </b> ${Journal} </p>
+                        <p><b> Embedded Emotions: </b></p>
+                        <p>${Emotion1}</p>
+                        <p>${Emotion2}</p>
+                        <p>${Emotion3}</p>
+                        <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
+                            <button onclick="updatePatientJournal('patientTodayJournal', patientID)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
+                        </div>
+                        </div>
+                        `
+                    }
+                    let container = document.querySelector("#patientJournalFlex");
+                    container.insertBefore(card, container.firstChild);
                 }
                 else{
-                    card.innerHTML = `
-                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
-                    <p><b>Last Update: </b> ${Date} </p>
-                    <p><b> Journal Entry: </b> ${Journal} </p>
-                    <p><b> Embedded Emotions: </b></p>
-                    <p>1. ${Emotion1}</p>
-                    <p>2. ${Emotion2}</p>
-                    <p>3. ${Emotion3}</p>
-                    </div>
-                    `
+                    let card = document.createElement("div");
+                    card.id = `journal${Date}`;
+                    card.classList.add("card");
+                    if(viewPermissions == "False"){
+                        card.innerHTML = `
+                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                        <p><b> Last Update: </b> ${Date} </p>
+                        <p><b> Journal Entry: </b> ${Journal} </p>
+                        <p><b> Please ask your Administrator for your results =) </b></p>
+                        </div>
+                        `
+                    }
+                    else{
+                        card.innerHTML = `
+                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                        <p><b>Last Update: </b> ${Date} </p>
+                        <p><b> Journal Entry: </b> ${Journal} </p>
+                        <p><b> Embedded Emotions: </b></p>
+                        <p>${Emotion1}</p>
+                        <p>${Emotion2}</p>
+                        <p>${Emotion3}</p>
+                        </div>
+                        `
+                    }
+                    let container = document.querySelector("#patientJournalFlex");
+                    container.insertBefore(card, container.firstChild);
                 }
-
-                let container = document.querySelector("#patientJournalFlex");
-                container.insertBefore(card, container.firstChild);
                 
-            });
+            });  
+        }
+        if(isToday == false){
+            let card = document.createElement("div");
+            card.id = `journal${localDate}`;
+            card.classList.add("card");
+            card.innerHTML = `
+            <h4>Write your new journal here!</h4>
+            <span>
+                <p id="patientTodayJournal" onfocus="checkPlaceholder(patientTodayJournal)" contenteditable="true" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Enter your response...</p>
+            </span>
+            <!--<span><textarea type="text" placeholder="Enter your response..." id="patientJournal1" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"></textarea></span>-->
+            <br>
+            <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
+                <button onclick="updatePatientJournal('patientTodayJournal', patientID)" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+            </div>
+            `
+            let container = document.querySelector("#createJournalDiv");
+            container.insertBefore(card, container.firstChild);
         }
     });
+    
 }
 window.loadJournals = loadJournals;
 
@@ -1073,6 +1230,10 @@ function getModelAnalysis(journal){
             Emotion2: Result2,
             Emotion3: Result3,
             Date: localDate
+        });
+
+        update(ref(db, 'Users/' + localUserID), {
+            userLastUpdate: localDate,
         });
 
         get(child(myRef, localUserID)).then((snapshot) => {

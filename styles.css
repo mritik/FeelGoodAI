@@ -36,7 +36,7 @@ body {
   flex-direction: row;
   flex-flow: row wrap;
   overflow: hidden;
-  padding: 100px 10px;
+  padding: 10px 10px;
   margin: -10px;
   height: auto;
   width: 100%;
@@ -48,7 +48,7 @@ body {
   flex-direction: row;
   flex-flow: row wrap;
   overflow: hidden;
-  padding: 100px 10px;
+  padding: 10px 10px;
   margin: -10px;
   height: auto;
   width: 100%;
@@ -60,7 +60,7 @@ body {
   flex-direction: row;
   flex-flow: row wrap;
   overflow: hidden;
-  padding: 100px 10px;
+  padding: 10px 10px;
   margin: -10px;
   height: auto;
   width: 100%;
