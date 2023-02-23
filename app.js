@@ -169,7 +169,7 @@ function signUp()
                     userBio: "User Biography",
                     userPsychologist: "No Psychologist",
                     userPsychologistID: "No Psychologist's ID",
-                    patientJournals: userFirstName + "'s Journals",
+                    patientJournals: "No Journals",
                     userLastUpdate: "",
                     viewResults: "True",
                     journalFrequency: "Every Day",
@@ -186,7 +186,7 @@ function signUp()
                     userCountry: "Your Country?",
                     userProfession: "Your Profession?",
                     userBio: "User Biography",
-                    userPatients: userFirstName + "'s Patients",
+                    userPatients: "No Patients",
                   });
             }
             sendEmailVerification(auth.currentUser)
@@ -386,7 +386,8 @@ function saveProfilePatient()
             userCountry: userCountry,
             userID: localUserID,
             userType: "Patient",
-            userBio: "User Bio"
+            userBio: "User Bio",
+            patientJournals: "No Journals"
           });
             updateEmail(auth.currentUser, userEmail).then(() => {
             // Email updated!
@@ -636,6 +637,28 @@ window.redirectAdminToPatientJournal = redirectAdminToPatientJournal;
 function loadPatientJournal(patientID){
     var userID = sessionStorage.userID;
     var myRef = ref(db, 'Users/' + userID + '/userPatients/' + patientID);
+    var isToday = false;
+    var stringDate = "";
+
+    var dateObj = new Date();
+    var seconds = dateObj.getUTCSeconds();
+    var minutes = dateObj.getUTCMinutes();
+    var hours = dateObj.getUTCHours();
+    var day = dateObj.getUTCDate();
+    var month = dateObj.getUTCMonth() + 1; //Months in terms of 1 to 12
+    var year = dateObj.getUTCFullYear();         
+
+    var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
+    var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
+
+    var indices = [];
+    for(var i = 0; i < localDate.length; i++) {
+        if (localDate[i] === "/"){
+            indices.push(i);
+        } 
+    }
+    var maxSubstring = indices[1] + 5;
+    localDate = localDate.substring(0, maxSubstring);
 
     get(child(myRef, '/patientJournals')).then((snapshot) => {
         if (snapshot.exists()) {
@@ -654,31 +677,80 @@ function loadPatientJournal(patientID){
                 const Emotion3 = journal.Emotion3;
                 console.log(Date, Journal, Emotion1, Emotion2, Emotion3);
 
-                let stringDate = Date.toString();
+                stringDate = Date.toString();
 
-                let card = document.createElement("div");
-                card.id = `journal${Date}`;
-                card.classList.add("card");
+                if(stringDate.includes(localDate)){
+                    isToday = true;
+                    console.log("Date is today");
+                    var indices = [];
+                    for(var i = 0; i < stringDate.length; i++) {
+                        if (stringDate[i] === "/") indices.push(i);
+                    }
+
+                    var maxSubstring = indices[1] + 5;
+                    
+                    stringDate = stringDate.substring(0, maxSubstring);
+
+                    let card = document.createElement("div");
+                    card.id = `journal${Date}`;
+                    card.classList.add("card");
+                    
+                    card.innerHTML = `
+                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+                    <p><b>Last Update: </b> ${Date} </p>
+                    <p><b> Journal Entry: </b> ${Journal} </p>
+                    <p><b> Embedded Emotions: </b></p>
+                    <p>${Emotion1}</p>
+                    <p>${Emotion2}</p>
+                    <p>${Emotion3}</p>
+
+                    <div id="resultsButton" style="margin-left: 0px; margin-top: 0px; float: right;">
+                        <button onclick="changeResultsViewing('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
+                    </div>
+                    </div>
+                    `
+
+                    let container = document.querySelector("#patientJournalFlex");
+                    container.insertBefore(card, container.firstChild);
+                }
+                else{
+                    var indices = [];
+                    for(var i = 0; i < stringDate.length; i++) {
+                        if (stringDate[i] === "/") indices.push(i);
+                    }
+
+                    var maxSubstring = indices[1] + 5;
+                    
+                    stringDate = stringDate.substring(0, maxSubstring);
+
+                    let card = document.createElement("div");
+                    card.id = `journal${Date}`;
+                    card.classList.add("card");
+                    
+                    card.innerHTML = `
+                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                    <p><b>Last Update: </b> ${Date} </p>
+                    <p><b> Journal Entry: </b> ${Journal} </p>
+                    <p><b> Embedded Emotions: </b></p>
+                    <p>${Emotion1}</p>
+                    <p>${Emotion2}</p>
+                    <p>${Emotion3}</p>
+
+                    <div id="resultsButton" style="margin-left: 0px; margin-top: 0px; float: right;">
+                        <button onclick="changeResultsViewing('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
+                    </div>
+                    </div>
+                    `
+
+                    let container = document.querySelector("#patientJournalFlex");
+                    container.insertBefore(card, container.firstChild);
+                }
+
                 
-                card.innerHTML = `
-                <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
-                <p><b>Last Update: </b> ${Date} </p>
-                <p><b> Journal Entry: </b> ${Journal} </p>
-                <p><b> Embedded Emotions: </b></p>
-                <p>${Emotion1}</p>
-                <p>${Emotion2}</p>
-                <p>${Emotion3}</p>
-
-                <div id="resultsButton" style="margin-left: 0px; margin-top: 0px; float: right;">
-                    <button onclick="changeResultsViewing('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
-                </div>
-                </div>
-                `
-
-                let container = document.querySelector("#patientJournalFlex");
-                container.insertBefore(card, container.firstChild);
                 
             });
         }
@@ -907,7 +979,7 @@ function sortPatients(sortBy){
 
     }
     else{
-        console.log("Something went wrong");
+        console.log("Something went wrongå");
     }
 
 }
@@ -916,7 +988,7 @@ window.sortPatients = sortPatients;
 
 
 
-function updatePatientJournal(divElement, patientID){
+function createPatientJournal(divElement, patientID){
     let journal = document.getElementById(divElement).innerHTML;
     console.log(journal);
     //var patientID = decryptPatientID(patientID);
@@ -924,14 +996,52 @@ function updatePatientJournal(divElement, patientID){
     //set(patientRef, journal);
     getModelAnalysis(journal);
 }
+window.createPatientJournal = createPatientJournal;
+
+function updatePatientJournal(cardID, patientID, stringDate, journal){
+    console.log(cardID);
+    let card = document.getElementById(cardID);
+    card.innerHTML = `
+    <div class="cardRow" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
+    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+    <p><b> Journal Entry: </b> </p>
+    <p contenteditable="true" id="patientTodayJournal"> ${journal} </p>
+    <p><b> You can edit as many times as you'd like until the end of the day =) </b></p>
+    <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
+        <button onclick="createPatientJournal('patientTodayJournal', '${patientID}')" style="width: 60px; height: 30px; background-color:#4583df;">Submit</button>
+    </div>
+    </div>
+    <br>
+    `
+}
 window.updatePatientJournal = updatePatientJournal;
+
 
 function loadPatients(){
     var userID = sessionStorage.userID;
     var myRef = ref(db, 'Users/' + userID);
+    var hasNoPatients = false;
+
+    get(ref(db, 'Users/' + userID)).then((snapshot) => {
+        if (snapshot.exists()) {
+            var userPatients = snapshot.val().userPatients;
+            if(userPatients == "No Patients"){
+                hasNoPatients = true;
+                document.getElementById("warningText").style.color = "red";
+                document.getElementById("warningText").innerHTML = "You have no patients yet! Add a patient by entering their ID in the box above.";
+                return;
+            }
+        }
+        }).catch((error) => {
+        console.error(error);
+        });
 
     get(child(myRef, '/userPatients')).then((snapshot) => {
         if (snapshot.exists()) {
+            if(hasNoPatients == true){
+                return;
+            }
             var profiles = snapshot.val()
             Object.keys(profiles).forEach(function(userKey) {
                 const user = profiles[userKey];
@@ -1032,6 +1142,10 @@ function loadJournals(){
     var myRef = ref(db, 'Users/' + userID);
     var viewPermissions = "";
     var isToday = false;
+    var isFirstJournal = false;
+    var stringDate = "";
+    var patientID = "";
+    patientID = patientID + encryptPatientID(sessionStorage.userID);
 
     var dateObj = new Date();
     var seconds = dateObj.getUTCSeconds();
@@ -1043,14 +1157,15 @@ function loadJournals(){
 
     var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
     var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
-    if(localDate.substring(12, 13) == ":"){
-        var dateLength = localDate.length - 12;
+
+    var indices = [];
+    for(var i = 0; i < localDate.length; i++) {
+        if (localDate[i] === "/"){
+            indices.push(i);
+        } 
     }
-    else{
-        var dateLength = localDate.length - 13;
-    }
-    localDate = localDate.substring(0, dateLength);
-    console.log(localDate);
+    var maxSubstring = indices[1] + 5;
+    localDate = localDate.substring(0, maxSubstring);
 
     get(child(IDRef, userID)).then((snapshot) => {
         if (snapshot.exists()) {
@@ -1060,8 +1175,40 @@ function loadJournals(){
         console.error(error);
         });
 
+    get(ref(db, 'Users/' + userID)).then((snapshot) => {
+        if (snapshot.exists()) {
+            var patientJournals = snapshot.val().patientJournals;
+            if(patientJournals == "No Journals"){
+                isFirstJournal = true;
+                let card = document.createElement("div");
+                card.id = `journal${localDate}`;
+                card.classList.add("card");
+                card.innerHTML = `
+                <h4>Write your new journal here!</h4>
+                <span>
+                    <p id="patientTodayJournal" onfocus="checkPlaceholder(patientTodayJournal)" contenteditable="true" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Enter your response...</p>
+                </span>
+                <!--<span><textarea type="text" placeholder="Enter your response..." id="patientJournal1" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"></textarea></span>-->
+                <br>
+                <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
+                    <button onclick="createPatientJournal('patientTodayJournal', ` + "`" + patientID + "`" + `)" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+                </div>
+                `
+                let container = document.querySelector("#createJournalDiv");
+                container.insertBefore(card, container.firstChild);
+                return;
+            }
+        }
+        }).catch((error) => {
+        console.error(error);
+        });
+    
+
     get(child(myRef, '/patientJournals')).then((snapshot) => {
         if (snapshot.exists()) {
+            if(isFirstJournal == true){
+                return;
+            }
             var profiles = snapshot.val()
             Object.keys(profiles).forEach(function(userKey) {
                 const journal = profiles[userKey];
@@ -1077,24 +1224,35 @@ function loadJournals(){
                 const Emotion3 = journal.Emotion3;
                 console.log(Date, Journal, Emotion1, Emotion2, Emotion3);
 
-                let stringDate = Date.toString();
+                
+                stringDate = Date.toString();
 
                 if(stringDate.includes(localDate)){
                     isToday = true;
                     console.log("Date is today");
+                    var indices = [];
+                    for(var i = 0; i < stringDate.length; i++) {
+                        if (stringDate[i] === "/") indices.push(i);
+                    }
+
+                    var maxSubstring = indices[1] + 5;
+                    
+                    stringDate = stringDate.substring(0, maxSubstring);
+
                     let card = document.createElement("div");
-                    card.id = `journal${Date}`;
+                    card.id = `journal${stringDate}`;
+                    
                     card.classList.add("card");
                     if(viewPermissions == "False"){
                         card.innerHTML = `
                         <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
                         <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
                         <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
-                        <p><b> Last Update: </b> ${Date} </p>
-                        <p><b> Journal Entry: </b> ${Journal} </p>
+                        <p id="todayJournalDate"><b> Last Update: </b> ${Date} </p>
+                        <p id="todayJournalText"><b> Journal Entry: </b> ${Journal} </p>
                         <p><b> Please ask your Administrator for your results =) </b></p>
-                        <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                            <button onclick="updatePatientJournal('patientTodayJournal', patientID)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
+                        <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">  
+                            <button onclick="updatePatientJournal('${card.id}', ` + "`" + patientID + "`" + `, '${stringDate}', ` + "`" + Journal + "`" + `)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
                         </div>
                         </div>
                         `
@@ -1104,14 +1262,14 @@ function loadJournals(){
                         <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
                         <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
                         <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
-                        <p><b>Last Update: </b> ${Date} </p>
-                        <p><b> Journal Entry: </b> ${Journal} </p>
+                        <p id="todayJournalDate"><b>Last Update: </b> ${Date} </p>
+                        <p id="todayJournalText"><b> Journal Entry: </b> ${Journal} </p>
                         <p><b> Embedded Emotions: </b></p>
                         <p>${Emotion1}</p>
                         <p>${Emotion2}</p>
                         <p>${Emotion3}</p>
                         <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                            <button onclick="updatePatientJournal('patientTodayJournal', patientID)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
+                            <button onclick="updatePatientJournal('${card.id}', ` + "`" + patientID + "`" + `, '${stringDate}', ` + "`" + Journal + "`" + `)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
                         </div>
                         </div>
                         `
@@ -1120,6 +1278,15 @@ function loadJournals(){
                     container.insertBefore(card, container.firstChild);
                 }
                 else{
+                    var indices = [];
+                    for(var i = 0; i < stringDate.length; i++) {
+                        if (stringDate[i] === "/") indices.push(i);
+                    }
+
+                    var maxSubstring = indices[1] + 5;
+                    
+                    stringDate = stringDate.substring(0, maxSubstring);
+                    
                     let card = document.createElement("div");
                     card.id = `journal${Date}`;
                     card.classList.add("card");
@@ -1150,7 +1317,7 @@ function loadJournals(){
                     }
                     let container = document.querySelector("#patientJournalFlex");
                     container.insertBefore(card, container.firstChild);
-                }
+                } 
                 
             });  
         }
@@ -1163,15 +1330,15 @@ function loadJournals(){
             <span>
                 <p id="patientTodayJournal" onfocus="checkPlaceholder(patientTodayJournal)" contenteditable="true" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Enter your response...</p>
             </span>
-            <!--<span><textarea type="text" placeholder="Enter your response..." id="patientJournal1" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"></textarea></span>-->
             <br>
             <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                <button onclick="updatePatientJournal('patientTodayJournal', patientID)" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+                <button onclick="createPatientJournal('patientTodayJournal', ` + "`" + patientID + "`" + `)" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
             </div>
+            <br>
             `
             let container = document.querySelector("#createJournalDiv");
             container.insertBefore(card, container.firstChild);
-        }
+        } 
     });
     
 }
@@ -1180,7 +1347,7 @@ window.loadJournals = loadJournals;
 function getModelAnalysis(journal){
     var localUserID = sessionStorage.userID;
     var encryptedID = encryptPatientID(localUserID);
-    query({"inputs": `${journal}`}).then((response) => {
+    query({"inputs": `${journal}`}, {"options": {"wait_for_model": true}}).then((response) => {
         const lines = response[0];
 
         const firstLabel = lines[0].label;
@@ -1210,13 +1377,15 @@ function getModelAnalysis(journal){
 
         var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
         var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
-        if(localDate.substring(12, 13) == ":"){
-            var dateLength = localDate.length - 12;
+        
+        var indices = [];
+        for(var i = 0; i < localDate.length; i++) {
+            if (localDate[i] === "/") indices.push(i);
         }
-        else{
-            var dateLength = localDate.length - 13;
-        }
-        var refDate = (localDate.replaceAll('/', '-')).substring(0, dateLength);
+
+        var maxSubstring = indices[1] + 5;
+        
+        var refDate = (localDate.replaceAll('/', '-')).substring(0, maxSubstring);
 
         //Consider 1 digit vs 2 digit for day and month - Use firebase timeStamp method and keep everything in firebase in UTC
         console.log(localDate); 
@@ -1239,16 +1408,18 @@ function getModelAnalysis(journal){
         get(child(myRef, localUserID)).then((snapshot) => {
             if (snapshot.exists()) {
                 userPsychID = snapshot.val().userPsychologistID;
-                update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID + "/patientJournals/" + refDate), {
-                    Journal: journal,
-                    Emotion1: Result1,
-                    Emotion2: Result2,
-                    Emotion3: Result3,
-                    Date: localDate,
-                });     
-                update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID), {
-                    patientLastUpdate: localDate,
-                });        
+                if(userPsychID != "No Psychologist's ID"){
+                    update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID + "/patientJournals/" + refDate), {
+                        Journal: journal,
+                        Emotion1: Result1,
+                        Emotion2: Result2,
+                        Emotion3: Result3,
+                        Date: localDate,
+                    });     
+                    update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID), {
+                        patientLastUpdate: localDate,
+                    });      
+                }
             } 
             reloadPage();
             }).catch((error) => {
