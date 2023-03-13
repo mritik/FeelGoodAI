@@ -12,7 +12,7 @@
   <title>FeelGood AI</title>
 </head>
 
-<body onload="checkAdminSignedIn(), loadPatients()">
+<body onload="checkAdminSignedIn(), initialPatientLoad()">
   
   <div class="flex-container">
     <a onclick="homeRedirect()"><span class="material-symbols-outlined" id="left" style="font-size:40px;">home</span></a>
@@ -45,7 +45,7 @@
           <option value="lastUpdate">Last Update</option>
           <option value="alphabetical">Alphabetical</option>
         </select>
-        <button onclick="sortPatients(sortSelect.value)">
+        <button onclick="sortPatients(sortSelect.value, patientList)">
           <i class="bx bx-check"></i>
         </button>
       </div>
@@ -59,6 +59,8 @@
     </div>
 
     <script>
+      var patientList = [];
+
       function checkEmpty(input) {
         if (input.value == "") {
           searchPatients(input);
@@ -66,6 +68,13 @@
           
         }
       }
+
+     async function initialPatientLoad(){
+        patientList = await loadPatients();
+        sortPatients(sortSelect.value, patientList);
+      } 
+
+
     </script>
   
   

@@ -136,3 +136,93 @@ tr {
 .content {
   padding: 24px;
 }
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+input, select {
+  padding: 12px;
+  border-radius: 6px;
+  border-color: #4583df;
+  transition: all 1.0s;
+  outline: none;
+}
+
+button {
+  border: 0px;
+  padding: 14px;
+  color: white;
+  background-color: #4583df;
+  transition: all 1.0s;
+  border-radius: 6px;
+}
+
+button:hover {
+  background-color: #4d88ff;
+}
+
+button:active, input:active, select:active {
+  background-color: #4d88ff;
+  transform: scale(0.95);
+}
+
+button span {
+  font-size: 12px;
+}
+
+.card {
+  all: unset;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.15);
+  transition: all 2.0s;
+  margin: 32px;
+  border-radius: 10px;
+  padding: 16px 24px;
+  position: relative;
+}
+
+.card h4 {
+  margin: 0px;
+  color: #4583df;
+}
+
+.card h4 b {
+  margin-right: 24px;
+}
+
+.card .modifySettingsBtn {
+  background-color: #4583df;
+  color: white;
+  border-radius: 6px;
+  padding: 4px;
+  font-size: 16px;
+  top: 16px; right: 24px;
+  cursor: pointer;
+  transition: all 1.0s;
+}
+
+.card .modifySettingsBtn:hover {
+  background-color: #4d88ff;
+}
+
+.card .modifySettingsBtn:active {
+  background-color: #4d88ff;
+  transform: scale(0.95);
+}
+
+.card .cardRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card .journalRow {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -373,7 +373,7 @@ function saveProfilePatient()
     if(checkUserFirstNameValid == null)
         return checkUserFirstName();
     else if(userLastName === "")
-        return userUserLastName();
+        return userLastName();
     else
     {
         var localUserID = sessionStorage.userID;
@@ -387,8 +387,26 @@ function saveProfilePatient()
             userID: localUserID,
             userType: "Patient",
             userBio: "User Bio",
-            patientJournals: "No Journals"
           });
+
+        get(child(myRef, localUserID)).then((snapshot) => {
+            if (snapshot.exists()) {
+                var profile = snapshot.val();
+                console.log(profile);
+                var userPsychID = profile.userPsychologistID;
+                if(userPsychID != "No Psychologist's ID"){
+                    console.log("d");
+                    update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptPatientID(localUserID)), {
+                        patientFirstName: userFirstName,
+                        patientLastName: userLastName,
+                        patientEmail: userEmail,
+                        patientAge: userAge,
+                        patientCountry: userCountry,
+                    });       
+                }
+            } 
+            })
+
             updateEmail(auth.currentUser, userEmail).then(() => {
             // Email updated!
             console.log("Email Updated");
@@ -493,8 +511,12 @@ function savePatientInfo(patientID){
         patientPriorityLevel: priorityLevel,
         
       });
+    document.getElementById("confirmationText").style.color = "green";
+    document.getElementById("confirmationText").innerText = "Changes Saved! You will be redirected in 1 second.";
     console.log("Profile Updated");
     getPatientInfo(patientID);
+    setTimeout(redirectAdminHome, 1000)
+
 
 } 
 window.savePatientInfo = savePatientInfo;
@@ -707,7 +729,7 @@ function loadPatientJournal(patientID){
                     <p>${Emotion3}</p>
 
                     <div id="resultsButton" style="margin-left: 0px; margin-top: 0px; float: right;">
-                        <button onclick="changeResultsViewing('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
+                        <button onclick="changeResultsViewing('patientJournal1')" style="width: 80px; height: 60px; background-color:#4583df;">Unlock Results</button>
                     </div>
                     </div>
                     `
@@ -967,16 +989,124 @@ function addPatient(patientID){
 }
 window.addPatient = addPatient;
 
-function sortPatients(sortBy){
+function partition(list, cardList, left, right) {
+    var pivot   = list[Math.floor((right + left) / 2)], //middle element
+        i       = left, //left pointer
+        j       = right; //right pointer
+    while (i <= j) {
+        while (list[i] < pivot) {
+            i++;
+        }
+        while (list[j] > pivot) {
+            j--;
+        }
+        if (i <= j) {
+            //swapping the two elements
+            var temp = list[i];
+            list[i] = list[j];
+            list[j] = temp;
+            var temp2 = cardList[i];
+            cardList[i] = cardList[j];
+            cardList[j] = temp2;
+            i++;
+            j--;
+        }
+    }
+    return i;
+}
+window.partition = partition;
+
+function quickSort(list, cardList, left, right) {
+    var index;
+    if (list.length > 1) {
+        index = partition(list, cardList, left, right); //index returned from partition
+        if (left < index - 1) { //more elements on the left side of the pivot
+            quickSort(list, left, index - 1);
+        }
+        if (index < right) { //more elements on the right side of the pivot
+            quickSort(list, index, right);
+        }
+    }
+    return list;
+}
+window.quickSort = quickSort;
+
+
+function sortPatients(sortBy, patientList){
     console.log(sortBy);
+    console.log(patientList);
+    var cardArray = [];
+    var sortArray = [];
+    var ctr = 0;
+
     if(sortBy == "priorityLevel"){
+       for(var i = 10; i < patientList.length; i = i + 11){
+            sortArray.push(patientList[i]);
+            cardArray.push(ctr);
+            ctr++;
+       }
+       for(var i = 0; i < sortArray.length; i++){
+              if(sortArray[i] == "Low"){
+                sortArray[i] = 0;
+              }
+              else if(sortArray[i] == "Medium"){
+                sortArray[i] = 1;
+              }
+              else if(sortArray[i] == "High"){
+                sortArray[i] = 2;
+              }
+              else{
+                console.log("Something went wrong");
+              }
+       }
+       console.log(cardArray);
+       console.log(sortArray);
+       var sortedArray = sortArray;
+       sortedArray = quickSort(sortedArray, cardArray, 0, sortArray.length - 1);
+       console.log(cardArray);
+       console.log(sortedArray);
+
+       loadPatientsSorted(patientList, cardArray, sortBy);
 
     }
     else if(sortBy == "lastUpdate"){
+        for(var i = 9; i < patientList.length; i = i + 11){
+            sortArray.push(patientList[i]);
+            cardArray.push(ctr);
+            ctr++;
+        }
+        for(var i = 0; i < sortArray.length; i++){
+            //var temp = sortArray[i];
+            sortArray[i] = sortArray[i].split(',').shift();
+            sortArray[i] = sortArray[i].split('/').reverse().join('');
+            //temp = temp.split(',').pop();
+            //console.log(temp);
+            
+     }
 
+        console.log(cardArray);
+        console.log(sortArray);
+        var sortedArray = sortArray;
+        sortedArray = quickSort(sortedArray, cardArray, 0, sortArray.length - 1);
+        console.log(cardArray);
+        console.log(sortedArray);
+
+        loadPatientsSorted(patientList, cardArray, sortBy);
     }
     else if(sortBy == "alphabetical"){
+        for(var i = 0; i < patientList.length; i = i + 11){
+            sortArray.push(patientList[i] + " " + patientList[i + 1]);
+            cardArray.push(ctr);
+            ctr++;
+        }
+        console.log(cardArray);
+        console.log(sortArray);
+        var sortedArray = sortArray;
+        sortedArray = quickSort(sortedArray, cardArray, 0, sortArray.length - 1);
+        console.log(cardArray);
+        console.log(sortedArray);
 
+        loadPatientsSorted(patientList, cardArray, sortBy);
     }
     else{
         console.log("Something went wrongå");
@@ -1002,7 +1132,7 @@ function updatePatientJournal(cardID, patientID, stringDate, journal){
     console.log(cardID);
     let card = document.getElementById(cardID);
     card.innerHTML = `
-    <div class="cardRow" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+    <div class="journalRow" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
     <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
     <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
     <p><b> Journal Entry: </b> </p>
@@ -1018,10 +1148,12 @@ function updatePatientJournal(cardID, patientID, stringDate, journal){
 window.updatePatientJournal = updatePatientJournal;
 
 
-function loadPatients(){
+async function loadPatients(){
     var userID = sessionStorage.userID;
     var myRef = ref(db, 'Users/' + userID);
     var hasNoPatients = false;
+    var patientList = [];
+    var functionComplete = false;
 
     get(ref(db, 'Users/' + userID)).then((snapshot) => {
         if (snapshot.exists()) {
@@ -1037,7 +1169,7 @@ function loadPatients(){
         console.error(error);
         });
 
-    get(child(myRef, '/userPatients')).then((snapshot) => {
+    await get(child(myRef, '/userPatients')).then((snapshot) => {
         if (snapshot.exists()) {
             if(hasNoPatients == true){
                 return;
@@ -1078,13 +1210,57 @@ function loadPatients(){
                 let container = document.querySelector("#patientFlex");
                 container.appendChild(card);
 
-                console.log(firstName, lastName, email, age, country, patientID, patientPsychName, patientPsychID, patientJournals, patientLastUpdate, patientPriorityLevel);
-                
+                patientList.push(firstName, lastName, email, age, country, patientID, patientPsychName, patientPsychID, patientJournals, patientLastUpdate, patientPriorityLevel);
+                console.log(patientList);
             });
         }
     });
+    
+    return patientList;
+    
 }
 window.loadPatients = loadPatients;
+
+function loadPatientsSorted(patientList, cardList, sortBy){
+    //Sort patientList in order of cardList
+    var newPatientList = [];
+
+    for(var i = 0; i < cardList.length; i++){
+        var startIdx = cardList[i] * 11;
+        var endIdx = (cardList[i] + 1) * 11;
+        newPatientList.push(patientList.slice(startIdx, endIdx));
+    }
+    console.log(newPatientList);
+
+    let container = document.querySelector("#patientFlex");
+    $(container).html("");
+
+    for(var i = 0; i < newPatientList.length; i++){
+        let card = document.createElement("div");
+        card.id = `patient${newPatientList[i][5]}`;
+        card.classList.add("card");
+        card.innerHTML = `
+        <div class="cardRow">
+        <h4 onclick="redirectAdminToPatientJournal('${newPatientList[i][5]}')"><b>${newPatientList[i][0]} ${newPatientList[i][1]}</b></h4>
+        <a onclick="redirectPatientSettings('${newPatientList[i][5]}')" class="modifySettingsBtn"><i class="bx bx-cog"></i></a>
+        </div>
+        <b><p id="${newPatientList[i][5]}ID">ID: ${newPatientList[i][5]}</p></b>
+        <p><b>Last Update: </b> ${newPatientList[i][9]} </p>
+        <p><b> Priority Level: </b> ${newPatientList[i][10]} </p>
+        `
+
+        let container = document.querySelector("#patientFlex");
+
+        if(sortBy == "priorityLevel" || sortBy == "lastUpdate"){
+            container.insertBefore(card, container.firstChild);
+        }
+        else{
+            container.appendChild(card, container.firstChild);
+        }
+    }
+}
+window.loadPatientsSorted = loadPatientsSorted;
+
 
 function searchPatients(patientName){
     var userID = sessionStorage.userID;
@@ -1245,7 +1421,7 @@ function loadJournals(){
                     card.classList.add("card");
                     if(viewPermissions == "False"){
                         card.innerHTML = `
-                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
                         <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
                         <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
                         <p id="todayJournalDate"><b> Last Update: </b> ${Date} </p>
@@ -1259,7 +1435,7 @@ function loadJournals(){
                     }
                     else{
                         card.innerHTML = `
-                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
                         <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
                         <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
                         <p id="todayJournalDate"><b>Last Update: </b> ${Date} </p>
@@ -1292,7 +1468,7 @@ function loadJournals(){
                     card.classList.add("card");
                     if(viewPermissions == "False"){
                         card.innerHTML = `
-                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
                         <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
                         <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
                         <p><b> Last Update: </b> ${Date} </p>
@@ -1303,7 +1479,7 @@ function loadJournals(){
                     }
                     else{
                         card.innerHTML = `
-                        <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
                         <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
                         <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
                         <p><b>Last Update: </b> ${Date} </p>
@@ -1347,17 +1523,23 @@ window.loadJournals = loadJournals;
 function getModelAnalysis(journal){
     var localUserID = sessionStorage.userID;
     var encryptedID = encryptPatientID(localUserID);
+
+    if(journal.length > 2000){
+        document.getElementById("exceedLimitWarning").style.display = "block";
+        return;
+    }
+
     query({"inputs": `${journal}`}, {"options": {"wait_for_model": true}}).then((response) => {
         const lines = response[0];
 
         const firstLabel = lines[0].label;
-        const firstScore = lines[0].score;
+        const firstScore = (lines[0].score * 100).toFixed(2);
 
         const secondLabel = lines[1].label;
-        const secondScore = lines[1].score;
+        const secondScore = (lines[1].score * 100).toFixed(2);
 
         const thirdLabel = lines[2].label;
-        const thirdScore = lines[2].score;
+        const thirdScore = (lines[2].score * 100).toFixed(2);
         
         var Result1 = "1. " + firstLabel + ": " + firstScore + "\n";
         var Result2 = "2. " + secondLabel + ": " + secondScore + "\n";
@@ -1378,14 +1560,18 @@ function getModelAnalysis(journal){
         var newDate = new Date(month + "/"  + day + "/" + year + " " + hours + ":" + minutes + ":" + seconds + " UTC");
         var localDate = newDate.toLocaleString("en-US", {timeZone: "America/New_York"});
         
-        var indices = [];
+        var refDate = localDate.split(',').shift().replaceAll('/', '-');
+
+        /* var indices = [];
         for(var i = 0; i < localDate.length; i++) {
-            if (localDate[i] === "/") indices.push(i);
+            if (localDate[i] === "/"){
+                indices.push(i);
+            }
         }
 
         var maxSubstring = indices[1] + 5;
         
-        var refDate = (localDate.replaceAll('/', '-')).substring(0, maxSubstring);
+        var refDate = (localDate.replaceAll('/', '-')).substring(0, maxSubstring); */
 
         //Consider 1 digit vs 2 digit for day and month - Use firebase timeStamp method and keep everything in firebase in UTC
         console.log(localDate); 
@@ -1447,6 +1633,13 @@ function reloadPage(){
     window.location.reload();
 }
 window.reloadPage = reloadPage;
+
+function redirectAdminHome(){
+    window.location.href = "adminHome.html";
+}
+window.redirectAdminHome = redirectAdminHome;
+
+
 
 
 
