@@ -71,7 +71,7 @@
 
      async function initialPatientLoad(){
         patientList = await loadPatients();
-        sortPatients(sortSelect.value, patientList);
+        sortPatients(sessionStorage.sortBy, patientList);
       } 
 
 

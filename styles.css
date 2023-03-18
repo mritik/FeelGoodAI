@@ -182,11 +182,14 @@ button span {
   border-radius: 10px;
   padding: 16px 24px;
   position: relative;
+  width: 1000px;
+  background-color: #84bee1;
+
 }
 
 .card h4 {
   margin: 0px;
-  color: #4583df;
+  color: black;
 }
 
 .card h4 b {
@@ -224,5 +227,6 @@ button span {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
+  align-items: left;
 }
+

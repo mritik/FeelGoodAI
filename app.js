@@ -168,7 +168,7 @@ function signUp()
                     userAge: "Your Age?",
                     userBio: "User Biography",
                     userPsychologist: "No Psychologist",
-                    userPsychologistID: "No Psychologist's ID",
+                    userPsychologistID: "No Psychologist ID",
                     patientJournals: "No Journals",
                     userLastUpdate: "",
                     viewResults: "True",
@@ -394,7 +394,7 @@ function saveProfilePatient()
                 var profile = snapshot.val();
                 console.log(profile);
                 var userPsychID = profile.userPsychologistID;
-                if(userPsychID != "No Psychologist's ID"){
+                if(userPsychID != "No Psychologist ID"){
                     console.log("d");
                     update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptPatientID(localUserID)), {
                         patientFirstName: userFirstName,
@@ -1033,6 +1033,12 @@ window.quickSort = quickSort;
 
 
 function sortPatients(sortBy, patientList){
+    if(sortBy == ""){
+        sortBy = "priorityLevel";
+    }
+
+    sessionStorage.sortBy = sortBy;
+
     console.log(sortBy);
     console.log(patientList);
     var cardArray = [];
@@ -1070,6 +1076,7 @@ function sortPatients(sortBy, patientList){
 
     }
     else if(sortBy == "lastUpdate"){
+        document.getElementById("sortSelect").value = "lastUpdate";
         for(var i = 9; i < patientList.length; i = i + 11){
             sortArray.push(patientList[i]);
             cardArray.push(ctr);
@@ -1094,6 +1101,7 @@ function sortPatients(sortBy, patientList){
         loadPatientsSorted(patientList, cardArray, sortBy);
     }
     else if(sortBy == "alphabetical"){
+        document.getElementById("sortSelect").value = "alphabetical";
         for(var i = 0; i < patientList.length; i = i + 11){
             sortArray.push(patientList[i] + " " + patientList[i + 1]);
             cardArray.push(ctr);
@@ -1132,14 +1140,18 @@ function updatePatientJournal(cardID, patientID, stringDate, journal){
     console.log(cardID);
     let card = document.getElementById(cardID);
     card.innerHTML = `
-    <div class="journalRow" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+
+    <div class="journalRow" contenteditable="false" style="margin: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
     <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+    <h4 style="margin: 10px;"><b>Status: Open</b></h4>
+    <div style = "border-color: black; border-radius: 3px; border-style: solid;">
     <p><b> Journal Entry: </b> </p>
-    <p contenteditable="true" id="patientTodayJournal"> ${journal} </p>
+    <p contenteditable="true" id="patientTodayJournal" style= "border-color: black; border-radius: 3px; border-style: solid;"> ${journal} </p>
+    <br>
     <p><b> You can edit as many times as you'd like until the end of the day =) </b></p>
-    <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-        <button onclick="createPatientJournal('patientTodayJournal', '${patientID}')" style="width: 60px; height: 30px; background-color:#4583df;">Submit</button>
+    <div id="journalSubmitEditButton" style="margin-top: 10px; margin-left: 10px; float: right;">
+        <button onclick="createPatientJournal('patientTodayJournal', '${patientID}')" style="width: 70px; height: 40px; background-color:#4583df; float: right;">Submit</button>
+    </div>
     </div>
     </div>
     <br>
@@ -1360,14 +1372,15 @@ function loadJournals(){
                 card.id = `journal${localDate}`;
                 card.classList.add("card");
                 card.innerHTML = `
+                <div class="journalRow" style="margin-right: 10px; margin-left: 10px; height: max-content; width: 1000px; background-color:#84bee1;"">
                 <h4>Write your new journal here!</h4>
                 <span>
-                    <p id="patientTodayJournal" onfocus="checkPlaceholder(patientTodayJournal)" contenteditable="true" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Enter your response...</p>
+                    <p id="patientTodayJournal" onfocus="checkPlaceholder(patientTodayJournal)" contenteditable="true" style="margin-right: 10px; margin-top: 10px; height: max-content; width: 97%; background-color:#84bee1; border-color: black; border-radius: 3px; border-style: solid;">Enter your response...</p>
                 </span>
-                <!--<span><textarea type="text" placeholder="Enter your response..." id="patientJournal1" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"></textarea></span>-->
                 <br>
-                <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                    <button onclick="createPatientJournal('patientTodayJournal', ` + "`" + patientID + "`" + `)" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+                <div id="journalSubmitEditButton" style="margin-top: 10px; margin-left: 10px; float: right;">
+                    <button onclick="createPatientJournal('patientTodayJournal', ` + "`" + patientID + "`" + `)" style="width: 70px; height: 40px; background-color:#4583df; float: right;">Submit</button>
+                </div>
                 </div>
                 `
                 let container = document.querySelector("#createJournalDiv");
@@ -1421,31 +1434,37 @@ function loadJournals(){
                     card.classList.add("card");
                     if(viewPermissions == "False"){
                         card.innerHTML = `
-                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+                        <div class="journalRow" contenteditable="false" style="margin-right: 10px; margin-left: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-bottom: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-right: 10px; margin-bottom: 10px;"><b>Status: Open</b></h4>
+                        <div style = "border-color: black; border-radius: 3px; border-style: solid;">
                         <p id="todayJournalDate"><b> Last Update: </b> ${Date} </p>
                         <p id="todayJournalText"><b> Journal Entry: </b> ${Journal} </p>
+                        <br>
                         <p><b> Please ask your Administrator for your results =) </b></p>
-                        <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">  
-                            <button onclick="updatePatientJournal('${card.id}', ` + "`" + patientID + "`" + `, '${stringDate}', ` + "`" + Journal + "`" + `)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
+                        <div id="journalSubmitEditButton" style="margin-top: 10px; margin-left: 10px; float: right;">  
+                            <button onclick="updatePatientJournal('${card.id}', ` + "`" + patientID + "`" + `, '${stringDate}', ` + "`" + Journal + "`" + `)" style="width: max-content; height: 35px; background-color:#4583df; text-align: center;">Edit</button>
+                        </div>
                         </div>
                         </div>
                         `
                     }
                     else{
                         card.innerHTML = `
-                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
+                        <div class="journalRow" contenteditable="false" style="margin-right: 10px; margin-left: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-bottom: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-right: 10px; margin-bottom: 10px;"><b>Status: Open</b></h4>
+                        <div style = "border-color: black; border-radius: 3px; border-style: solid;">
                         <p id="todayJournalDate"><b>Last Update: </b> ${Date} </p>
                         <p id="todayJournalText"><b> Journal Entry: </b> ${Journal} </p>
+                        <br>
                         <p><b> Embedded Emotions: </b></p>
                         <p>${Emotion1}</p>
                         <p>${Emotion2}</p>
                         <p>${Emotion3}</p>
-                        <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                            <button onclick="updatePatientJournal('${card.id}', ` + "`" + patientID + "`" + `, '${stringDate}', ` + "`" + Journal + "`" + `)" style="width: 60px; height: 30px; background-color:#4583df;">Edit</button>
+                        <div id="journalSubmitEditButton" style="margin-top: 10px; margin-left: 10px; float: right;">
+                            <button onclick="updatePatientJournal('${card.id}', ` + "`" + patientID + "`" + `, '${stringDate}', ` + "`" + Journal + "`" + `)" style="width: max-content; height: 35px; background-color:#4583df; text-align: center; margin: auto;">Edit</button>
+                        </div>
                         </div>
                         </div>
                         `
@@ -1468,26 +1487,32 @@ function loadJournals(){
                     card.classList.add("card");
                     if(viewPermissions == "False"){
                         card.innerHTML = `
-                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                        <div class="journalRow" contenteditable="false" style="margin: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-bottom: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-right: 10px; margin-bottom: 10px;"><b>Status: Closed</b></h4>
+                        <div style = "border-color: black; border-radius: 3px; border-style: solid;">
                         <p><b> Last Update: </b> ${Date} </p>
                         <p><b> Journal Entry: </b> ${Journal} </p>
+                        <br>
                         <p><b> Please ask your Administrator for your results =) </b></p>
+                        </div>
                         </div>
                         `
                     }
                     else{
                         card.innerHTML = `
-                        <div class="journalRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                        <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                        <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
+                        <div class="journalRow" contenteditable="false" style="margin: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-bottom: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-right: 10px; margin-bottom: 10px;"><b>Status: Closed</b></h4>
+                        <div style = "border-color: black; border-radius: 3px; border-style: solid;">
                         <p><b>Last Update: </b> ${Date} </p>
                         <p><b> Journal Entry: </b> ${Journal} </p>
+                        <br>
                         <p><b> Embedded Emotions: </b></p>
                         <p>${Emotion1}</p>
                         <p>${Emotion2}</p>
                         <p>${Emotion3}</p>
+                        </div>
                         </div>
                         `
                     }
@@ -1502,13 +1527,15 @@ function loadJournals(){
             card.id = `journal${localDate}`;
             card.classList.add("card");
             card.innerHTML = `
+            <div class="journalRow" style="margin-right: 10px; margin-left: 10px; height: max-content; width: 1000px; background-color:#84bee1;"">
             <h4>Write your new journal here!</h4>
             <span>
-                <p id="patientTodayJournal" onfocus="checkPlaceholder(patientTodayJournal)" contenteditable="true" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;">Enter your response...</p>
+                <p id="patientTodayJournal" onfocus="checkPlaceholder(patientTodayJournal)" contenteditable="true" style="margin-top: 10px; height: max-content; width: 97%; background-color:#84bee1; border-color: black; border-radius: 3px; border-style: solid;">Enter your response...</p>
             </span>
             <br>
-            <div id="journalSubmitEditButton" style="margin-left: 10px; float: right;">
-                <button onclick="createPatientJournal('patientTodayJournal', ` + "`" + patientID + "`" + `)" style="width: 70px; height: 30px; background-color:#4583df;">Submit</button>
+            <div id="journalSubmitEditButton" style="margin-top: 10px; margin-left: 10px; float: right;">
+                <button onclick="createPatientJournal('patientTodayJournal', ` + "`" + patientID + "`" + `)" style="width: 70px; height: 40px; background-color:#4583df; float: right;">Submit</button>
+            </div>
             </div>
             <br>
             `
@@ -1594,7 +1621,7 @@ function getModelAnalysis(journal){
         get(child(myRef, localUserID)).then((snapshot) => {
             if (snapshot.exists()) {
                 userPsychID = snapshot.val().userPsychologistID;
-                if(userPsychID != "No Psychologist's ID"){
+                if(userPsychID != "No Psychologist ID"){
                     update(ref(db, 'Users/' + userPsychID + "/userPatients/" + encryptedID + "/patientJournals/" + refDate), {
                         Journal: journal,
                         Emotion1: Result1,
