@@ -718,15 +718,17 @@ function loadPatientJournal(patientID){
                     card.classList.add("card");
                     
                     card.innerHTML = `
-                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Open</b></h4>
-                    <p><b>Last Update: </b> ${Date} </p>
-                    <p><b> Journal Entry: </b> ${Journal} </p>
-                    <p><b> Embedded Emotions: </b></p>
-                    <p>${Emotion1}</p>
-                    <p>${Emotion2}</p>
-                    <p>${Emotion3}</p>
+                    <div class="journalRow" contenteditable="false" style="margin-right: 10px; margin-left: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-bottom: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-right: 10px; margin-bottom: 10px;"><b>Status: Open</b></h4>
+                        <div style = "border-color: black; border-radius: 3px; border-style: solid;">
+                        <p id="todayJournalDate"><b>Last Update: </b> ${Date} </p>
+                        <p id="todayJournalText"><b> Journal Entry: </b> ${Journal} </p>
+                        <br>
+                        <p><b> Embedded Emotions: </b></p>
+                        <p>${Emotion1}</p>
+                        <p>${Emotion2}</p>
+                        <p>${Emotion3}</p>
 
                     <div id="resultsButton" style="margin-left: 0px; margin-top: 0px; float: right;">
                         <button onclick="changeResultsViewing('patientJournal1')" style="width: 80px; height: 60px; background-color:#4583df;">Unlock Results</button>
@@ -752,18 +754,20 @@ function loadPatientJournal(patientID){
                     card.classList.add("card");
                     
                     card.innerHTML = `
-                    <div class="cardRow" contenteditable="false" style="margin-left: 10px; margin-right: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
-                    <h4 style="margin-left: 10px; margin-top: 10px;"><b>${stringDate}</b></h4>
-                    <h4 style="margin-left: 10px; margin-right: 10px;"><b>Status: Closed</b></h4>
-                    <p><b>Last Update: </b> ${Date} </p>
-                    <p><b> Journal Entry: </b> ${Journal} </p>
-                    <p><b> Embedded Emotions: </b></p>
-                    <p>${Emotion1}</p>
-                    <p>${Emotion2}</p>
-                    <p>${Emotion3}</p>
+                    <div class="journalRow" contenteditable="false" style="margin-right: 10px; margin-left: 10px; height: max-content; width: 97%; background-color:#84bee1;"">
+                        <h4 style="margin-bottom: 10px;"><b>${stringDate}</b></h4>
+                        <h4 style="margin-right: 10px; margin-bottom: 10px;"><b>Status: Open</b></h4>
+                        <div style = "border-color: black; border-radius: 3px; border-style: solid;">
+                        <p id="todayJournalDate"><b>Last Update: </b> ${Date} </p>
+                        <p id="todayJournalText"><b> Journal Entry: </b> ${Journal} </p>
+                        <br>
+                        <p><b> Embedded Emotions: </b></p>
+                        <p>${Emotion1}</p>
+                        <p>${Emotion2}</p>
+                        <p>${Emotion3}</p>
 
                     <div id="resultsButton" style="margin-left: 0px; margin-top: 0px; float: right;">
-                        <button onclick="changeResultsViewing('patientJournal1')" style="width: 70px; height: 40px; background-color:#4583df;">Unlock Results</button>
+                        <button onclick="changeResultsViewing('patientJournal1')" style="width: 80px; height: 60px; background-color:#4583df;">Unlock Results</button>
                     </div>
                     </div>
                     `
