@@ -197,8 +197,8 @@ function signUp()
                 // Email verification sent!
             });
             //console.log("Account Created");
-            window.location = 'signIn.html';
-            //window.location.replace("signIn.html");
+            window.location = 'index.html';
+            //window.location.replace("index.html");
         }).catch((error) => 
         {
             var errorCode = error.code;
@@ -572,7 +572,7 @@ function checkUserSignedIn(){
         }
         else {
           //console.log("User Not Signed In")
-          window.location = "signIn.html";
+          window.location = "index.html";
           
         }
       })
@@ -593,14 +593,14 @@ function checkAdminSignedIn(){
                           if(getUserType == "Administrator")
                             console.log("Admin Signed In");
                           else
-                            window.location = 'signIn.html';
+                            window.location = 'index.html';
                         } 
                       }).catch((error) => {
                         console.error(error);
                       });
                 }
                 else
-                    window.location = 'signIn.html';
+                    window.location = 'index.html';
             });
 }
 window.checkAdminSignedIn = checkAdminSignedIn;
@@ -619,14 +619,14 @@ function checkPatientSignedIn(){
                   if(getUserType == "Patient")
                     console.log("Patient Signed In");
                   else
-                    window.location = 'signIn.html';
+                    window.location = 'index.html';
                 } 
               }).catch((error) => {
                 console.error(error);
               });
         }
         else
-            window.location = 'signIn.html';
+            window.location = 'index.html';
     });
 }
 window.checkPatientSignedIn = checkPatientSignedIn;
@@ -637,7 +637,7 @@ function signInRedirect(){
 
     }).catch((error) => {
     });  
-    window.location = "signIn.html";
+    window.location = "index.html";
 }
 window.signInRedirect = signInRedirect;
 
@@ -648,7 +648,7 @@ function homeRedirect(){
     else if(sessionStorage.userType == "Patient")
         window.location = "patientHome.html";
     else
-        window.location = "signIn.html";
+        window.location = "index.html";
 }
 window.homeRedirect = homeRedirect;
 
@@ -659,7 +659,7 @@ function settingsRedirect(){
     else if(sessionStorage.userType == "Patient")
         window.location = "patientSettings.html";
     else
-        window.location = "signIn.html";
+        window.location = "index.html";
 }
 window.settingsRedirect = settingsRedirect;
 
